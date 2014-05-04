@@ -49,6 +49,14 @@ class Export {
 		if ( $this->_get_total_activity_count() === $this->_get_saved_activities_count($output_path) ) {
 			return;
 		}
+
+		$activities = $this->_get_list_of_activities();
+		$downloaded = $this->_download_activties($activities, $output_path);
+
+		if ( $downloaded ) {
+			die('Done!');
+		}
+
 	}
 
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -156,6 +164,76 @@ class Export {
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
+	 * Download Activities from List of IDs
+	 *
+	 * @param array $activites
+	 * @param string $path
+	 */
+	private function _download_activties($activities, $path) {
+		$activities = $this->_get_new_activites($activities, $path);
+		$count = 0;
+
+		foreach ( $activities as $activity ) {
+
+			if ( $count % 10 === 0 && $count !== 0 ) {
+				sleep(1);
+			}
+
+			if (
+				$this->_download_file($activity['id'], 'gpx', $path) &&
+				$this->_download_file($activity['id'], 'tcx', $path)
+			) {
+				$this->_update_activities_index($activity, $path);
+			}
+
+			$count++;
+		}
+
+		return true;
+	}
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+	/**
+	 * Download File
+	 *
+	 * @param int $id
+	 * @param string $type gpx or tcx
+	 * @param string $path
+	 * @return bool
+	 */
+	private function _download_file( $id, $type, $path ) {
+		if ( ! file_exists($path . $type) ) {
+			mkdir($path . $type);
+		}
+
+		$this_file = $path . $type . "/activity_{$id}.{$type}";
+
+		set_time_limit(0);
+		$file = fopen($this_file, 'w+');
+		
+		$response = Tools::curl(
+			"http://connect.garmin.com/proxy/activity-service-1.1/{$type}/activity/{$id}?full=true",
+			array(
+				'CURLOPT_MAXREDIRS' => 4,
+				'CURLOPT_RETURNTRANSFER' => true,
+				'CURLOPT_FOLLOWLOCATION' => true,
+				'CURLOPT_COOKIEJAR' => $this->cookie,
+				'CURLOPT_COOKIEFILE' => $this->cookie,
+				'CURLOPT_FILE' => $file,
+				'CURLOPT_TIMEOUT' => 50,
+				'CURLOPT_HEADER' => false,
+			),
+			'GET'
+		);
+
+		fclose($file);
+
+		return file_exists($this_file);
+	}
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 	/**
 	 * Update Activities Index
 	 * 
