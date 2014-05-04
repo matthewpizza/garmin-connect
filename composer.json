@@ -7,9 +7,7 @@
             "email": "hello@thisismatthew.com"
         }
     ],
-    "require": {
-        "guzzlehttp/guzzle": "~4.0"
-    },
+    "require": {},
     "autoload": {
         "psr-0": {
             "Garmin\\API\\": "lib/"
