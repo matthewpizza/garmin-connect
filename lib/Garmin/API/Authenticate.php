@@ -63,22 +63,31 @@ class Authenticate {
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
-	 * Construct
+	 * Setup
+	 */
+	public static function setup($username) {
+		self::$username = $username;
+		self::_cookie();
+	}
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+	/**
+	 * Make Connection
 	 *
 	 * @param string $username
 	 * @param string $password
 	 */
 	public static function make_connection($username, $password) {
 
-		self::$username = $username;
-		self::_cookie();
+		self::setup($username);
 
-		if ( ! self::is_connected() ) {
-			$maybe = self::_connect($username, $password);
-			return $maybe;
+		if ( self::is_connected($username) ) {
+			return true;
 		}
 
-		return true;
+		$maybe = self::_connect($username, $password);
+		return $maybe;		
 
 	}
 
@@ -88,9 +97,12 @@ class Authenticate {
 	 * Test Connection
 	 * Checks to see if already logged in
 	 *
+	 * @param string $username
 	 * @return bool $is_connected
 	 */
-	public static function is_connected() {
+	public static function is_connected($username) {
+		self::setup($username);
+
 		$is_connected = false;
 
 		// build curl request
@@ -155,7 +167,6 @@ class Authenticate {
 		$request = self::$url . '?' . http_build_query(self::$params);
 
 		$response = Tools::curl($request, $options, $method);
-
 
 		if ( strpos($response['headers']['url'], 'connect.garmin.com') !== false ) {
 			return true;
