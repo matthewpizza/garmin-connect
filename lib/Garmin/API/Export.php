@@ -156,6 +156,28 @@ class Export {
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
+	/**
+	 * Update Activities Index
+	 * 
+	 * @param array $activity
+	 * @param string $path
+	 */
+	private function _update_activities_index($activity, $path) {
+		$index = @file_get_contents($path . 'activities.json');
+		$index = json_decode($index, true);
+
+		$activity['gpx'] = "gpx/activity_{$activity['id']}.gpx";
+		$activity['tcx'] = "tcx/activity_{$activity['id']}.tcx";
+
+		$index[] = $activity;
+
+		$index = json_encode($index, JSON_PRETTY_PRINT);
+		file_put_contents($path . 'activities.json', $index);
+	}
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+	/**
 	 * Get Saved Activities Count
 	 *
 	 * @param string $path
