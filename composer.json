@@ -1,0 +1,13 @@
+{
+    "name": "matthewspencer/garmin-connect",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Matthew Spencer",
+            "email": "hello@thisismatthew.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "~4.0"
+    }
+}
