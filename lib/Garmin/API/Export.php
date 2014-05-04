@@ -237,17 +237,30 @@ class Export {
 	/**
 	 * Update Activities Index
 	 * 
-	 * @param array $activity
+	 * @param array $new_activity
 	 * @param string $path
 	 */
-	private function _update_activities_index($activity, $path) {
+	private function _update_activities_index($new_activity, $path) {
 		$index = @file_get_contents($path . 'activities.json');
 		$index = json_decode($index, true);
 
-		$activity['gpx'] = "gpx/activity_{$activity['id']}.gpx";
-		$activity['tcx'] = "tcx/activity_{$activity['id']}.tcx";
+		$new_activity['gpx'] = "gpx/activity_{$new_activity['id']}.gpx";
+		$new_activity['tcx'] = "tcx/activity_{$new_activity['id']}.tcx";
 
-		$index[] = $activity;
+		$ok_to_go = true;
+
+		// no duplicates!
+		foreach ( $index as $activity ) {
+			if ( $activity['id'] === $new_activity['id'] ) {
+				$ok_to_go = false;
+				break;
+			}
+		}
+
+		// bail if duplicate
+		if ( ! $ok_to_go ) return;
+
+		$index[] = $new_activity;
 
 		$index = json_encode($index, JSON_PRETTY_PRINT);
 		file_put_contents($path . 'activities.json', $index);
