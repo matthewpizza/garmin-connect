@@ -25,8 +25,17 @@ class Export {
 	 *
 	 * @param string $username
 	 * @param string $password
+	 * @param string $output_path
 	 */
-	public function __construct($username, $password) {
+	public function __construct($username, $password, $output_path) {
+
+		if (substr($output_path, -1) !== '/') {
+			$output_path = "{$output_path}/";
+		}
+
+		if ( ! file_exists($output_path) ) {
+			die('Output path does not exist');
+		}
 
 		$this->username = $username;
 		$this->cookie = dirname(dirname(dirname(__DIR__))) . '/cookies/' . $username;
