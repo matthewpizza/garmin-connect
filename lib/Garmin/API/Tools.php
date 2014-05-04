@@ -192,4 +192,35 @@ class Tools {
 		return $key;
 	}
 
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+	/**
+	 * Sort Multidimensional Array By Value
+	 *
+	 * @param array $array
+	 * @param string $sory_by
+	 * @return array $array
+	 */
+	public static function sort_multidimensional_array_by_value( &$array, $sory_by ) {
+		$sort_array = array();
+		$return_array = array();
+
+		reset($array);
+
+		foreach ( $array as $key => $value ) {
+		    $sort_array[$key] = $value[$sory_by];
+		}
+
+		asort($sort_array);
+
+		foreach ( $sort_array as $key => $value ) {
+		    $return_array[$key] = $array[$key];
+		}
+		
+		$array = $return_array;
+
+		return $array;
+
+	}
+
 }

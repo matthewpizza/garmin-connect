@@ -262,6 +262,8 @@ class Export {
 
 		$index[] = $new_activity;
 
+		$index = Tools::sort_multidimensional_array_by_value($index, 'id');
+
 		$index = json_encode($index, JSON_PRETTY_PRINT);
 		file_put_contents($path . 'activities.json', $index);
 	}
