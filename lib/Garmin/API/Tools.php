@@ -127,7 +127,7 @@ class Tools {
 		$serialized_data = @file_get_contents( $cache_path . $filename );
 
 		// file_get_contents() returns false on failure
-		if ( $serialized_data === false ) return false;
+		if ( $serialized_data === false || empty($serialized_data) ) return false;
 
 		$cache = unserialize( $serialized_data );
 		extract( $cache );
