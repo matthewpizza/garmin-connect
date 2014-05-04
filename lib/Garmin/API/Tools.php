@@ -217,7 +217,7 @@ class Tools {
 		    $return_array[$key] = $array[$key];
 		}
 		
-		$array = $return_array;
+		$array = array_values($return_array);
 
 		return $array;
 
