@@ -85,7 +85,7 @@ class Tools {
 
 		if ( $group ) {
 			$group = self::_sanitize_key( $group );
-			$filename .= ".{$group}";
+			$filename .= "_{$group}";
 		}
 		
 		$timestamp = time();
@@ -120,7 +120,7 @@ class Tools {
 
 		if ( $group ) {
 			$group = self::_sanitize_key( $group );
-			$filename .= ".{$group}";
+			$filename .= "_{$group}";
 		}
 
 		// get cache
