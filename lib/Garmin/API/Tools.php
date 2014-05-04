@@ -146,7 +146,13 @@ class Tools {
 	 * @return string $path
 	 */
 	private static function _cache_path() {
-		return dirname(dirname(dirname(__DIR__))) . '/cache/';
+		$path = dirname(dirname(dirname(__DIR__))) . '/cache/';
+
+		if ( ! file_exists($path) ) {
+			mkdir($path);
+		}
+
+		return $path;
 	}
 
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
