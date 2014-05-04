@@ -51,8 +51,9 @@ class Export {
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
-	 * Create Array of All Activity IDs
+	 * Create Array of All Activities
 	 *
+	 * @uses http://connect.garmin.com/proxy/activitylist-service/activities/
 	 * @return array $activities
 	 */
 	private function _get_list_of_activities() {
@@ -67,7 +68,6 @@ class Export {
 		$how_many_loops = ceil($total_activities/$limit);
 		$activities = array();
 
-		// http://connect.garmin.com/proxy/activitylist-service/activities/mattheweternal?start=1&limit=10
 		$url = "http://connect.garmin.com/proxy/activitylist-service/activities/{$this->username}";
 		
 		for ( $i = 0; $i < $how_many_loops; $i++) {
@@ -98,7 +98,16 @@ class Export {
 			$data = json_decode($response['data'], true);
 
 			foreach ( $data['activityList'] as $activity ) {
-				$activities[] = $activity['activityId'];
+				$activities[] = array(
+					'id' => $activity['activityId'],
+					'start_time' => array(
+						'local' => $activity['startTimeLocal'],
+						'gmt' => $activity['startTimeGMT'],
+					),
+					'type' => $activity['activityType']['typeKey'],
+
+					// distance is in meters
+					'distance' => $activity['distance'],
 			}
 
 		}
