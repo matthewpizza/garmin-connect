@@ -247,18 +247,23 @@ class Export {
 		$new_activity['gpx'] = "gpx/activity_{$new_activity['id']}.gpx";
 		$new_activity['tcx'] = "tcx/activity_{$new_activity['id']}.tcx";
 
-		$ok_to_go = true;
+		if ( ! empty($index) ) {
+			$ok_to_go = true;
 
-		// no duplicates!
-		foreach ( $index as $activity ) {
-			if ( $activity['id'] === $new_activity['id'] ) {
-				$ok_to_go = false;
-				break;
+			// no duplicates!
+			foreach ( $index as $activity ) {
+				if ( $activity['id'] === $new_activity['id'] ) {
+					$ok_to_go = false;
+					break;
+				}
 			}
-		}
 
-		// bail if duplicate
-		if ( ! $ok_to_go ) return;
+			// bail if duplicate
+			if ( ! $ok_to_go ) return;
+		} 
+		else {
+			$index = array();
+		}
 
 		$index[] = $new_activity;
 
