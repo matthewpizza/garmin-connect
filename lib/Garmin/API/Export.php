@@ -51,7 +51,7 @@ class Export {
 		}
 
 		$activities = $this->_get_list_of_activities();
-		$downloaded = $this->_download_activties($activities, $output_path);
+		$downloaded = $this->_download_activities($activities, $output_path);
 
 		if ( $downloaded ) {
 			die('Done!');
@@ -169,7 +169,7 @@ class Export {
 	 * @param array $activites
 	 * @param string $path
 	 */
-	private function _download_activties($activities, $path) {
+	private function _download_activities($activities, $path) {
 		$activities = $this->_get_new_activites($activities, $path);
 		$count = 0;
 
