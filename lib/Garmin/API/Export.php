@@ -170,7 +170,7 @@ class Export {
 	 * @param string $path
 	 */
 	private function _download_activities($activities, $path) {
-		$activities = $this->_get_new_activites($activities, $path);
+		$activities = $this->_get_new_activities($activities, $path);
 		$count = 0;
 
 		foreach ( $activities as $activity ) {
@@ -292,7 +292,7 @@ class Export {
 	 * @param string $path
 	 * @return array $new
 	 */
-	private function _get_new_activites($activities, $path) {
+	private function _get_new_activities($activities, $path) {
 		$index = @file_get_contents($path . 'activities.json');
 
 		if ( ! $index ) {
