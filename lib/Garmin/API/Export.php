@@ -111,6 +111,7 @@ class Export {
 
 					// distance is in meters
 					'distance' => $activity['distance'],
+				);
 			}
 
 		}
