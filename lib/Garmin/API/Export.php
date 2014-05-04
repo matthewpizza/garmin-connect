@@ -46,6 +46,9 @@ class Export {
 			die('Authentication Error');
 		}
 
+		if ( $this->_get_total_activity_count() === $this->_get_saved_activities_count($output_path) ) {
+			return;
+		}
 	}
 
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -149,4 +152,18 @@ class Export {
 		return $total_activities;
 	}
 
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+	/**
+	 * Get Saved Activities Count
+	 *
+	 * @param string $path
+	 * @return int
+	 */
+	private function _get_saved_activities_count($path) {
+		$index = @file_get_contents($path . 'activities.json');
+		$index = json_decode($index, true);
+
+		return count($index);
+	}
 }
