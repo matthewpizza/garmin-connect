@@ -189,4 +189,45 @@ class Export {
 
 		return count($index);
 	}
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+	/**
+	 * Get New Activities
+	 * 
+	 * @param array $activities 
+	 * @param string $path
+	 * @return array $new
+	 */
+	private function _get_new_activites($activities, $path) {
+		$index = @file_get_contents($path . 'activities.json');
+
+		if ( ! $index ) {
+			return $activities;
+		}
+
+		$index = json_decode($index, true);
+
+		$index_ids = array();
+		$activities_ids = array();
+		$new = $activities;
+
+		foreach ($index as $key => $activity) {
+			$index_ids[$key] = $activity['id'];
+		}
+
+		foreach ($activities as $key => $activity) {
+			$activities_ids[$key] = $activity['id'];
+		}
+
+		foreach ($index_ids as $id) {
+			if ( array_search($id, $activities_ids) !== false ) {
+				$key = array_search($id, $activities_ids);
+				unset($new[$key]);
+			}
+		}
+
+		return $new;
+	}
+
 }
