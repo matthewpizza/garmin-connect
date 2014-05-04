@@ -27,8 +27,13 @@ class Tools {
 
 		curl_setopt($ch, CURLOPT_URL, $url);
 
-		$options['CURLOPT_HEADER'] = true;
-		$options['CURLOPT_RETURNTRANSFER'] = true;
+		if ( ! isset($options['CURLOPT_HEADER']) ) {
+			$options['CURLOPT_HEADER'] = true;
+		}
+
+		if ( ! isset($options['CURLOPT_RETURNTRANSFER']) ) {
+			$options['CURLOPT_RETURNTRANSFER'] = true;
+		}
 
 		foreach ($options as $option => $value) {
 			$option = str_replace( 'CURLOPT_', '', strtoupper($option) );
