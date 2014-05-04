@@ -1,6 +1,27 @@
 # Garmin Connect
 
-This is a PHP wrapper for some of the Garmin Connect API. The API is fairly undocumented and is discouraged. This project was created to assure all Garmin Connect data was backed up outside of the service.
+This is a PHP wrapper for _some_ of the Garmin Connect API. The API is fairly undocumented and is discouraged. This project was created to assure all Garmin Connect data was backed up outside of the service.
+
+## Installation 
+
+```json
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/matthewspencer/garmin-connect"
+        }
+    ],
+    "require": {
+        "matthewspencer/garmin-connect": "dev-master"
+    },
+    "minimum-stability": "dev"
+}
+```
+
+```bash
+composer install
+```
 
 ## Usage
 
