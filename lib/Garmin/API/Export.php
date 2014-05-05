@@ -34,7 +34,7 @@ class Export {
 		}
 
 		if ( ! file_exists($output_path) ) {
-			die('Output path does not exist');
+			die("Output path does not exist\n");
 		}
 
 		$this->username = $username;
@@ -43,7 +43,7 @@ class Export {
 		$connected = Authenticate::make_connection($username, $password);
 
 		if ( ! $connected ) {
-			die('Authentication Error');
+			die("Authentication Error\n");
 		}
 
 		if ( $this->_get_total_activity_count() === $this->_get_saved_activities_count($output_path) ) {
@@ -54,7 +54,7 @@ class Export {
 		$downloaded = $this->_download_activities($activities, $output_path);
 
 		if ( $downloaded ) {
-			die('Done!');
+			die("Done!\n");
 		}
 
 	}
