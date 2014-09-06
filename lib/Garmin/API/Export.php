@@ -80,7 +80,7 @@ class Export {
 		$activities = array();
 
 		$url = "http://connect.garmin.com/proxy/activitylist-service/activities/{$this->username}";
-		
+
 		for ( $i = 0; $i < $how_many_loops; $i++) {
 			$pagination = $total_activities - ($limit * ($i + 1));
 
@@ -125,7 +125,7 @@ class Export {
 		}
 
 		Tools::cache_set('list_of_activities', $activities, $this->username);
-		
+
 		return $activities;
 	}
 
@@ -153,6 +153,10 @@ class Export {
 			),
 			'GET'
 		);
+
+		if ( $response['headers']['http_code'] !== 200 ) {
+			die("{$response['headers']['http_code']} error on total activity request. Please double check your username as it is used in this request.\n");
+		}
 
 		$data = json_decode($response['data'], true);
 		$total_activities = (int) $data['userMetrics'][0]['totalActivities'];
@@ -211,7 +215,7 @@ class Export {
 
 		set_time_limit(0);
 		$file = fopen($this_file, 'w+');
-		
+
 		$response = Tools::curl(
 			"http://connect.garmin.com/proxy/activity-service-1.1/{$type}/activity/{$id}?full=true",
 			array(
@@ -236,7 +240,7 @@ class Export {
 
 	/**
 	 * Update Activities Index
-	 * 
+	 *
 	 * @param array $new_activity
 	 * @param string $path
 	 */
@@ -260,7 +264,7 @@ class Export {
 
 			// bail if duplicate
 			if ( ! $ok_to_go ) return;
-		} 
+		}
 		else {
 			$index = array();
 		}
@@ -292,8 +296,8 @@ class Export {
 
 	/**
 	 * Get New Activities
-	 * 
-	 * @param array $activities 
+	 *
+	 * @param array $activities
 	 * @param string $path
 	 * @return array $new
 	 */
