@@ -10,7 +10,7 @@ class Authenticate {
 
 	/**
 	 * Username
-	 * 
+	 *
 	 * @var string $username
 	 * @access private
 	 */
@@ -18,7 +18,7 @@ class Authenticate {
 
 	/**
 	 * Path to cookie
-	 * 
+	 *
 	 * @var string $cookie
 	 * @access private
 	 */
@@ -87,7 +87,7 @@ class Authenticate {
 		}
 
 		$maybe = self::_connect($username, $password);
-		return $maybe;		
+		return $maybe;
 
 	}
 
@@ -122,7 +122,7 @@ class Authenticate {
 		// is connected?
 		// YES: http://connect.garmin.com/dashboard?cid=xxxxxxx
 		// NO: https://sso.garmin.com/sso/login?service=http%3A%2F%2Fconnect.garmin.com%2Fpost-auth%2Flogin&clientId=GarminConnect&consumeServiceTicket=false
-		if ( strpos($response['headers']['url'], 'connect.garmin.com/dashboard') !== false ) {
+		if ( strpos($response['headers']['url'], 'sso.garmin.com/sso/login') === false ) {
 			$is_connected = true;
 		}
 
@@ -150,7 +150,6 @@ class Authenticate {
 			// 'displayNameRequired' => 'false',
 		);
 		$data['lt'] = self::_get_execution_key($response);
-		
 
 		$options = array(
 			'CURLOPT_MAXREDIRS' => 4,
@@ -162,7 +161,6 @@ class Authenticate {
 			'CURLOPT_POSTFIELDS' => http_build_query($data),
 		);
 		$method = 'POST';
-
 
 		$request = self::$url . '?' . http_build_query(self::$params);
 
