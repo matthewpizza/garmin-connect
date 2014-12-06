@@ -62,7 +62,7 @@ class Tools {
 		$headers = curl_getinfo($ch);
 		$header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
 		curl_close($ch);
-		
+
 		$body = substr($response, $header_size);
 
 		$return['headers'] = $headers;
@@ -92,7 +92,7 @@ class Tools {
 			$group = self::_sanitize_key( $group );
 			$filename .= "_{$group}";
 		}
-		
+
 		$timestamp = time();
 
 		// serialize data with timestamp
@@ -115,7 +115,7 @@ class Tools {
 	 * @param string $key
 	 * @param string $group
 	 * @param int $duration
-	 * 
+	 *
 	 * @return bool|array
 	 */
 	public static function cache_get($key, $group = false, $duration = 3600) {
@@ -164,7 +164,7 @@ class Tools {
 
 	/**
 	 * Helper Function: Sanitize Cache Key
-	 * 
+	 *
 	 * Clean up key name
 	 * Ex. users/john-doe => users.john-doe
 	 *
@@ -216,7 +216,7 @@ class Tools {
 		foreach ( $sort_array as $key => $value ) {
 		    $return_array[$key] = $array[$key];
 		}
-		
+
 		$array = array_values($return_array);
 
 		return $array;
