@@ -60,17 +60,15 @@ class Authenticate {
 	 */
 	private static $url = 'https://sso.garmin.com/sso/login';
 
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 	/**
 	 * Setup
+	 *
+	 * @param string $username
 	 */
 	public static function setup($username) {
 		self::$username = $username;
 		self::_cookie();
 	}
-
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
 	 * Make Connection
@@ -90,8 +88,6 @@ class Authenticate {
 		return $maybe;
 
 	}
-
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
 	 * Test Connection
@@ -128,8 +124,6 @@ class Authenticate {
 
 		return $is_connected;
 	}
-
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
 	 * Authenticate with Garmin SSO
@@ -175,8 +169,6 @@ class Authenticate {
 
 	}
 
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 	/**
 	 * Get Flow Execution Key
 	 * Grabs from HTML comment
@@ -212,8 +204,6 @@ class Authenticate {
 
 		return $execution_key;
 	}
-
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
 	 * Setup Cookie

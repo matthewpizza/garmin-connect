@@ -71,8 +71,6 @@ class Tools {
 		return $return;
 	}
 
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 	/**
 	 * Set Cache Item
 	 *
@@ -106,8 +104,6 @@ class Tools {
 
 		return $cache_set;
 	}
-
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
 	 * Get Cache Item
@@ -143,8 +139,6 @@ class Tools {
 		return $data;
 	}
 
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 	/**
 	 * Helper Function: Cache Path
 	 *
@@ -159,8 +153,6 @@ class Tools {
 
 		return $path;
 	}
-
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
 	 * Helper Function: Sanitize Cache Key
@@ -191,8 +183,6 @@ class Tools {
 
 		return $key;
 	}
-
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
 	 * Sort Multidimensional Array By Value
