@@ -1,6 +1,7 @@
 <?php
 
 namespace MatthewSpencer\GarminConnect;
+use __;
 
 /**
  * Garmin Connect Export
@@ -272,7 +273,9 @@ class Export {
 
 		$index[] = $new_activity;
 
-		$index = Tools::sort_multidimensional_array_by_value($index, 'id');
+		$index = __::sortBy($index, function($activity) {
+			return $activity['id'];
+		});
 
 		$index = json_encode($index, JSON_PRETTY_PRINT);
 		file_put_contents($path . 'activities.json', $index);
