@@ -1,6 +1,6 @@
 <?php
 
-namespace Garmin\API;
+namespace MatthewSpencer\GarminConnect;
 
 /**
  * Authenticate with Garmin Connect

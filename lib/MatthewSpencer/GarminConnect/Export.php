@@ -1,6 +1,6 @@
 <?php
 
-namespace Garmin\API;
+namespace MatthewSpencer\GarminConnect;
 
 /**
  * Garmin Connect Export

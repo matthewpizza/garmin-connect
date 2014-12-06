@@ -30,7 +30,7 @@ composer install
 The Export class will download GPX and TCX files for all activities found. It can be run multiple times and will only download the activities it does not have.
 
 ```php
-new Garmin\API\Export( $username, $password, $output_path );
+new MatthewSpencer\GarminConnect\Export( $username, $password, $output_path );
 ```
 
 ## Requirements

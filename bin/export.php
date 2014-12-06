@@ -84,4 +84,4 @@ require_once $autoload;
 /**
  * Run the exporter
  */
-return new Garmin\API\Export($username, $password, $output_path);
+return new MatthewSpencer\GarminConnect\Export($username, $password, $output_path);
