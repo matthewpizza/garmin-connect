@@ -132,7 +132,7 @@ class Authenticate {
 			'embed' => 'true',
 			// 'displayNameRequired' => 'false',
 		);
-		$data['lt'] = self::_get_execution_key($response);
+		$data['lt'] = self::flow_execution_key($response);
 
 		$options = array(
 			'CURLOPT_MAXREDIRS' => 4,
@@ -162,9 +162,9 @@ class Authenticate {
 	 * Get Flow Execution Key
 	 * Grabs from HTML comment
 	 *
-	 * @return mixed $execution_key
+	 * @return string|bool $execution_key
 	 */
-	private static function _get_execution_key() {
+	private static function flow_execution_key() {
 
 		$response = $this->client->get( self::$url, [
 		    'query' => self::$params
@@ -184,17 +184,6 @@ class Authenticate {
 
 		return $execution_key;
 
-	}
-
-	/**
-	 * Setup Cookie
-	 */
-	private static function _cookie() {
-		self::$cookie = dirname(dirname(dirname(__DIR__))) . '/cookies/' . self::$username;
-
-		if ( ! file_exists(self::$cookie) ) {
-			file_put_contents(self::$cookie, '');
-		}
 	}
 
 }
