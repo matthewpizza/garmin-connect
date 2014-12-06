@@ -1,12 +1,22 @@
 <?php
 
 namespace MatthewSpencer\GarminConnect;
+use Symfony\Component\DomCrawler\Crawler;
+use GuzzleHttp\Client;
 
 /**
  * Authenticate with Garmin Connect
  */
 
 class Authenticate {
+
+	/**
+	 * GuzzleHttp\Client
+	 *
+	 * @var $client
+	 * @access public
+	 */
+	public $client;
 
 	/**
 	 * Username
@@ -61,16 +71,6 @@ class Authenticate {
 	private static $url = 'https://sso.garmin.com/sso/login';
 
 	/**
-	 * Setup
-	 *
-	 * @param string $username
-	 */
-	public static function setup($username) {
-		self::$username = $username;
-		self::_cookie();
-	}
-
-	/**
 	 * Make Connection
 	 *
 	 * @param string $username
@@ -78,7 +78,8 @@ class Authenticate {
 	 */
 	public static function make_connection($username, $password) {
 
-		self::setup($username);
+		self::$username = $username;
+		$this->client = new Client();
 
 		if ( self::is_connected($username) ) {
 			return true;
@@ -97,32 +98,20 @@ class Authenticate {
 	 * @return bool $is_connected
 	 */
 	public static function is_connected($username) {
-		self::setup($username);
 
-		$is_connected = false;
-
-		// build curl request
-		$options = array(
-			'CURLOPT_MAXREDIRS' => 4,
-			'CURLOPT_RETURNTRANSFER' => true,
-			'CURLOPT_FOLLOWLOCATION' => true,
-			'CURLOPT_COOKIEJAR' => self::$cookie,
-			'CURLOPT_COOKIEFILE' => self::$cookie,
-		);
-		$method = 'GET';
-		$request = self::$url . '?' . http_build_query(self::$params);
-
-		// get curl response
-		$response = Tools::curl($request, $options, $method);
+		$response = $this->client->get( self::$url, [
+		    'query' => self::$params
+		]);
 
 		// is connected?
 		// YES: http://connect.garmin.com/dashboard?cid=xxxxxxx
 		// NO: https://sso.garmin.com/sso/login?service=http%3A%2F%2Fconnect.garmin.com%2Fpost-auth%2Flogin&clientId=GarminConnect&consumeServiceTicket=false
-		if ( strpos($response['headers']['url'], 'sso.garmin.com/sso/login') === false ) {
-			$is_connected = true;
+		if ( strpos($response->getEffectiveUrl(), 'sso.garmin.com/sso/login') === false ) {
+			return true;
 		}
 
-		return $is_connected;
+		return false;
+
 	}
 
 	/**
