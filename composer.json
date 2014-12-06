@@ -10,7 +10,7 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "MatthewSpencer\\GarminConnect\\": "lib/"
+            "MatthewSpencer\\GarminConnect\\": "src/"
         }
     }
 }
