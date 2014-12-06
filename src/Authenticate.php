@@ -100,7 +100,7 @@ class Authenticate {
 	public static function is_connected($username) {
 
 		$response = $this->client->get( self::$url, [
-		    'query' => self::$params
+			'query' => self::$params
 		] );
 
 		// is connected?
@@ -167,7 +167,7 @@ class Authenticate {
 	private static function flow_execution_key() {
 
 		$response = $this->client->get( self::$url, [
-		    'query' => self::$params
+			'query' => self::$params
 		] );
 
 		$crawler = new Crawler( (string) $response->getBody() );
