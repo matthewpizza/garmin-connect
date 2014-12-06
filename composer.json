@@ -1,13 +1,25 @@
 {
     "name": "matthewspencer/garmin-connect",
+    "type": "library",
+    "description": "Authenticate with and export activity data from Garmin Connect",
+    "keywords": [
+        "garmin",
+        "running",
+        "export"
+    ],
+    "homepage": "http://github.com/matthewspencer/garmin-connect",
+    "type": "library",
     "license": "MIT",
     "authors": [
         {
             "name": "Matthew Spencer",
-            "email": "hello@thisismatthew.com"
+            "email": "hello@thisismatthew.com",
+            "homepage": "http://matthewspencer.me"
         }
     ],
-    "require": {},
+    "require": {
+        "php": ">=5.4"
+    },
     "autoload": {
         "psr-4": {
             "MatthewSpencer\\GarminConnect\\": "src/"
