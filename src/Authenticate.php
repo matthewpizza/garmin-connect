@@ -101,7 +101,7 @@ class Authenticate {
 
 		$response = $this->client->get( self::$url, [
 		    'query' => self::$params
-		]);
+		] );
 
 		// is connected?
 		// YES: http://connect.garmin.com/dashboard?cid=xxxxxxx
@@ -162,36 +162,28 @@ class Authenticate {
 	 * Get Flow Execution Key
 	 * Grabs from HTML comment
 	 *
-	 * @return string $execution_key
+	 * @return mixed $execution_key
 	 */
 	private static function _get_execution_key() {
-		// build curl request
-		$options = array(
-			'CURLOPT_MAXREDIRS' => 4,
-			'CURLOPT_RETURNTRANSFER' => true,
-			'CURLOPT_FOLLOWLOCATION' => true,
-			'CURLOPT_COOKIEJAR' => self::$cookie,
-			'CURLOPT_COOKIEFILE' => self::$cookie,
-		);
-		$method = 'GET';
-		$request = self::$url . '?' . http_build_query(self::$params);
 
-		// get curl response
-		$response = Tools::curl($request, $options, $method);
+		$response = $this->client->get( self::$url, [
+		    'query' => self::$params
+		] );
+
+		$crawler = new Crawler( (string) $response->getBody() );
 
 		// looking for
-		// <!-- flowExecutionKey: [xxxxx] -->
-		// probably will break :/
-		// other option is a hidden input named "lt"
-		preg_match('~<!-- flowExecutionKey: \[(.*?)\] -->~', $response['data'], $matches);
-
-		if ( empty($matches) ) {
-			die('Failed to find flowExecutionKey');
+		// <!-- flowExecutionKey: [xxxx] -->
+		// or
+		// <input name="lt" value="xxxx" type="hidden">
+		try {
+			$execution_key = $crawler->filter('input[name=ff]')->attr('value');
+		} catch ( InvalidArgumentException $e ) {
+			$execution_key = false;
 		}
 
-		$execution_key = $matches[1];
-
 		return $execution_key;
+
 	}
 
 	/**
