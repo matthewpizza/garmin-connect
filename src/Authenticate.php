@@ -177,7 +177,7 @@ class Authenticate {
 		// or
 		// <input name="lt" value="xxxx" type="hidden">
 		try {
-			$execution_key = $crawler->filter('input[name=ff]')->attr('value');
+			$execution_key = $crawler->filter('input[name=lt]')->attr('value');
 		} catch ( InvalidArgumentException $e ) {
 			$execution_key = false;
 		}
