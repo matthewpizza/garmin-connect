@@ -15,10 +15,21 @@ namespace MatthewSpencer\GarminConnect;
 
 class Export {
 
+	/**
+	 * Username
+	 *
+	 * @var string $username
+	 * @access public
+	 */
 	public $username;
-	public $cookie;
 
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+	/**
+	 * Path to cookie
+	 *
+	 * @var string $cookie
+	 * @access public
+	 */
+	public $cookie;
 
 	/**
 	 * Create export client
@@ -58,8 +69,6 @@ class Export {
 		}
 
 	}
-
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
 	 * Create Array of All Activities
@@ -129,8 +138,6 @@ class Export {
 		return $activities;
 	}
 
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 	/**
 	 * Get total activity count
 	 *
@@ -165,8 +172,6 @@ class Export {
 		return $total_activities;
 	}
 
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 	/**
 	 * Download Activities from List of IDs
 	 *
@@ -195,8 +200,6 @@ class Export {
 
 		return true;
 	}
-
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
 	 * Download File
@@ -235,8 +238,6 @@ class Export {
 
 		return file_exists($this_file);
 	}
-
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
 	 * Update Activities Index
@@ -277,8 +278,6 @@ class Export {
 		file_put_contents($path . 'activities.json', $index);
 	}
 
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 	/**
 	 * Get Saved Activities Count
 	 *
@@ -291,8 +290,6 @@ class Export {
 
 		return count($index);
 	}
-
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	/**
 	 * Get New Activities
