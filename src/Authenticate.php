@@ -199,7 +199,7 @@ class Authenticate {
 	/**
 	 * Guzzle Client
 	 */
-	private static guzzle() {
+	private static function guzzle() {
 
 		if ( is_null( self::$client ) ) {
 			self::$client = new Guzzle();
