@@ -2,7 +2,7 @@
 
 namespace MatthewSpencer\GarminConnect;
 use Symfony\Component\DomCrawler\Crawler;
-use GuzzleHttp\Client;
+use GuzzleHttp\Client as Guzzle;
 
 /**
  * Authenticate with Garmin Connect
@@ -11,82 +11,64 @@ use GuzzleHttp\Client;
 class Authenticate {
 
 	/**
-	 * GuzzleHttp\Client
-	 *
-	 * @var $client
+	 * @var $client GuzzleHttp\Client
 	 * @access public
 	 */
-	public $client;
+	public static $client;
 
 	/**
-	 * Username
-	 *
 	 * @var string $username
 	 * @access private
 	 */
 	private static $username;
 
 	/**
-	 * Path to cookie
-	 *
-	 * @var string $cookie
+	 * @var string $password
 	 * @access private
 	 */
-	private static $cookie;
+	private static $password;
 
 	/**
-	 * Login Parameter
-	 *
 	 * @var array $params
-	 * @access private
+	 * @access public
 	 */
-	private static $params = array(
+	public static $params = array(
 		'service' => 'http://connect.garmin.com/post-auth/login',
 		'clientId' => 'GarminConnect',
 		'consumeServiceTicket' => 'false',
-		// 'webhost' => 'olaxpw-my01.garmin.com',
-		// 'source' => 'http://connect.garmin.com/en-US/signin',
-		// 'redirectAfterAccountLoginUrl' => 'http://connect.garmin.com/post-auth/login',
-		// 'redirectAfterAccountCreationUrl' => 'http://connect.garmin.com/post-auth/login',
-		// 'gauthHost' => 'https://sso.garmin.com/sso',
-		// 'locale' => 'en',
-		// 'id' => 'gauth-widget',
-		// 'cssUrl' => 'https://static.garmincdn.com/com.garmin.connect/ui/src-css/gauth-custom.css',
-		// 'rememberMeShown' => 'true',
-		// 'rememberMeChecked' => 'false',
-		// 'createAccountShown' => 'true',
-		// 'openCreateAccount' => 'false',
-		// 'usernameShown' => 'true',
-		// 'displayNameShown' => 'false',
-		// 'initialFocus' => 'true',
-		// 'embedWidget' => 'false',
 	);
 
 	/**
-	 * Login URL
-	 *
-	 * @var string $url
-	 * @access private
+	 * @var string $login_url
+	 * @access public
 	 */
-	private static $url = 'https://sso.garmin.com/sso/login';
+	public static $login_url = 'https://sso.garmin.com/sso/login';
 
 	/**
-	 * Make Connection
-	 *
-	 * @param string $username
-	 * @param string $password
+	 * @var string $dashboard_url
+	 * @access public
 	 */
-	public static function make_connection($username, $password) {
+	public static $dashboard_url = 'http://connect.garmin.com/post-auth/login';
+
+	/**
+	 * Make New Connection
+	 *
+	 * @param  string $username
+	 * @param  string $password
+	 * @return boolean $connected
+	 */
+	public static function new_connection($username, $password) {
 
 		self::$username = $username;
-		$this->client = new Client();
+		self::$password = $password;
+		self::$client = new Guzzle();
 
-		if ( self::is_connected($username) ) {
+		if ( self::is_connected() ) {
 			return true;
 		}
 
-		$maybe = self::_connect($username, $password);
-		return $maybe;
+		$connected = self::connect();
+		return $connected;
 
 	}
 
@@ -94,13 +76,13 @@ class Authenticate {
 	 * Test Connection
 	 * Checks to see if already logged in
 	 *
-	 * @param string $username
-	 * @return bool $is_connected
+	 * @return boolean
 	 */
-	public static function is_connected($username) {
+	public static function is_connected() {
 
-		$response = $this->client->get( self::$url, [
-			'query' => self::$params
+		$response = self::$client->get( self::$login_url, [
+			'cookies' => true,
+			'query' => self::$params,
 		] );
 
 		// is connected?
@@ -117,44 +99,30 @@ class Authenticate {
 	/**
 	 * Authenticate with Garmin SSO
 	 *
-	 * @uses https://sso.garmin.com/sso/js/gauth-widget.js
-	 * @param string $username
-	 * @param string $password
-	 * @return bool
+	 * @return boolean
 	 */
-	private static function _connect($username, $password) {
+	private static function connect() {
 
-		// data to post
-		$data = array(
-			'username' => $username,
-			'password' => $password,
-			'_eventId' => 'submit',
-			'embed' => 'true',
-			// 'displayNameRequired' => 'false',
-		);
-		$data['lt'] = self::flow_execution_key($response);
-
-		$options = array(
-			'CURLOPT_MAXREDIRS' => 4,
-			'CURLOPT_RETURNTRANSFER' => true,
-			'CURLOPT_FOLLOWLOCATION' => true,
-			'CURLOPT_COOKIEJAR' => self::$cookie,
-			'CURLOPT_COOKIEFILE' => self::$cookie,
-			'CURLOPT_POST' => count($data),
-			'CURLOPT_POSTFIELDS' => http_build_query($data),
-		);
-		$method = 'POST';
-
-		$request = self::$url . '?' . http_build_query(self::$params);
-
-		$response = Tools::curl($request, $options, $method);
-
-		if ( strpos($response['headers']['url'], 'connect.garmin.com') !== false ) {
-			return true;
+		if ( ! $ticket = self::ticket( $data ) ) {
+			die('Cannot find ticket value. Please check connection details.');
 		}
-		else {
-			die('Could not connect.');
+
+		$response = self::$client->post( self::$dashboard_url, [
+			'query' => [
+				'ticket' => $ticket,
+			],
+		] );
+
+		if ( $response->getStatusCode() !== 302 ) {
+			die('Expected 302, saw ' . $response->getStatusCode());
 		}
+
+		$response = self::$client->get( $response->getHeader('Location') );
+
+		if ( $response->getStatusCode() !== 200 ) return false;
+		if ( strpos( (string) $response->getEffectiveUrl(), '://connect.garmin.com/' ) === false ) return false;
+
+		return true;
 
 	}
 
@@ -166,8 +134,9 @@ class Authenticate {
 	 */
 	private static function flow_execution_key() {
 
-		$response = $this->client->get( self::$url, [
-			'query' => self::$params
+		$response = self::client->get( self::login_url, [
+			'cookies' => true,
+			'query' => self::params
 		] );
 
 		$crawler = new Crawler( (string) $response->getBody() );
@@ -183,6 +152,41 @@ class Authenticate {
 		}
 
 		return $execution_key;
+
+	}
+
+	/**
+	 * Get Ticket Value
+	 *
+	 * @return string
+	 */
+	private static function ticket() {
+
+		$data = [
+			'username' => self::$username,
+			'password' => self::$password,
+			'_eventId' => 'submit',
+			'embed' => 'true',
+			'displayNameRequired' => 'false',
+			'lt' => self::flow_execution_key(),
+		];
+
+		$response = self::$client->post( self::$login_url, [
+			'cookies' => true,
+			'query' => self::$params,
+			'body' => $data,
+			'allow_redirects' => false,
+		] );
+
+		// looking for
+		// var response_url = 'http://connect.garmin.com/post-auth/login?ticket=xx-xxxxxxxx-xxxxxxxxxxxxxxxxxxxx-xxx';
+		preg_match( "/ticket=([^']+)'/", (string) $response->getBody(), $matches );
+
+		if ( ! isset( $matches[1] ) ) {
+			return false;
+		}
+
+		return $matches[1];
 
 	}
 

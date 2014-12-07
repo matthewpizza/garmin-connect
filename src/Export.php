@@ -52,7 +52,7 @@ class Export {
 		$this->username = $username;
 		$this->cookie = dirname(dirname(dirname(__DIR__))) . '/cookies/' . $username;
 
-		$connected = Authenticate::make_connection($username, $password);
+		$connected = Authenticate::new_connection($username, $password);
 
 		if ( ! $connected ) {
 			die("Authentication Error\n");
