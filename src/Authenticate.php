@@ -63,36 +63,8 @@ class Authenticate {
 		self::$username = $username;
 		self::$password = $password;
 
-		if ( self::is_connected() ) {
-			return true;
-		}
-
 		$connected = self::connect();
 		return $connected;
-
-	}
-
-	/**
-	 * Test Connection
-	 * Checks to see if already logged in
-	 *
-	 * @return boolean
-	 */
-	public static function is_connected() {
-
-		$response = self::$client->get( self::$login_url, [
-			'cookies' => true,
-			'query' => self::$params,
-		] );
-
-		// is connected?
-		// YES: http://connect.garmin.com/dashboard?cid=xxxxxxx
-		// NO: https://sso.garmin.com/sso/login?service=http%3A%2F%2Fconnect.garmin.com%2Fpost-auth%2Flogin&clientId=GarminConnect&consumeServiceTicket=false
-		if ( strpos($response->getEffectiveUrl(), 'sso.garmin.com/sso/login') === false ) {
-			return true;
-		}
-
-		return false;
 
 	}
 
@@ -103,8 +75,6 @@ class Authenticate {
 	 */
 	private static function connect() {
 
-		self::guzzle();
-
 		if ( ! $ticket = self::ticket( $data ) ) {
 			die('Cannot find ticket value. Please check connection details.');
 		}
@@ -113,6 +83,7 @@ class Authenticate {
 			'query' => [
 				'ticket' => $ticket,
 			],
+			'allow_redirects' => false,
 		] );
 
 		if ( $response->getStatusCode() !== 302 ) {
@@ -135,8 +106,6 @@ class Authenticate {
 	 * @return string|bool $execution_key
 	 */
 	private static function flow_execution_key() {
-
-		self::guzzle();
 
 		$response = self::$client->get( self::$login_url, [
 			'cookies' => true,
@@ -165,8 +134,6 @@ class Authenticate {
 	 * @return string
 	 */
 	private static function ticket() {
-
-		self::guzzle();
 
 		$data = [
 			'username' => self::$username,
