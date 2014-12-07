@@ -16,10 +16,10 @@ class Authenticate {
 	public static $client = null;
 
 	/**
-	 * @var string $username
+	 * @var string $email
 	 * @access private
 	 */
-	private static $username;
+	private static $email;
 
 	/**
 	 * @var string $password
@@ -52,14 +52,14 @@ class Authenticate {
 	/**
 	 * Make New Connection
 	 *
-	 * @param  string $username
+	 * @param  string $email
 	 * @param  string $password
 	 * @return boolean $connected
 	 */
-	public static function new_connection($username, $password) {
+	public static function new_connection($email, $password) {
 
 		self::client();
-		self::$username = $username;
+		self::$email = $email;
 		self::$password = $password;
 
 		$connected = self::connect();
@@ -134,7 +134,7 @@ class Authenticate {
 	private static function ticket() {
 
 		$data = [
-			'username' => self::$username,
+			'username' => self::$email,
 			'password' => self::$password,
 			'_eventId' => 'submit',
 			'embed' => 'true',
