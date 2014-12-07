@@ -25,11 +25,11 @@ class Export {
 	/**
 	 * Create export client
 	 *
-	 * @param string $username
+	 * @param string $email
 	 * @param string $password
 	 * @param string $output_path
 	 */
-	public function __construct($username, $password, $output_path) {
+	public function __construct( $email, $password, $output_path ) {
 
 		if ( substr( $output_path, -1 ) !== '/' ) {
 			$output_path = rtrim( $output_path, '/\\' );
@@ -46,7 +46,7 @@ class Export {
 		$this->username = $username;
 		$this->cookie = dirname(__DIR__) . '/cookies/' . $username;
 
-		$connected = Authenticate::new_connection($username, $password);
+		$connected = Authenticate::new_connection($email, $password);
 
 		if ( ! $connected ) {
 			die('Authentication Error');
