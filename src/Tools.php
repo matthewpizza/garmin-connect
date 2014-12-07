@@ -17,23 +17,23 @@ class Tools {
 	 * @return array $return
 	 */
 	public static function curl($url, $options, $method) {
-		$return = array();
 
 		if ( ! function_exists('curl_version') ) {
 			die('The PHP CURL extension is not installed.');
 		}
 
+		$options = array_merge($options, array(
+			'CURLOPT_MAXREDIRS' => 4,
+			'CURLOPT_HEADER' => true,
+			'CURLOPT_RETURNTRANSFER' => true,
+			'CURLOPT_FOLLOWLOCATION' => true,
+		));
+
+		$return = array();
+
 		$ch = curl_init();
 
 		curl_setopt($ch, CURLOPT_URL, $url);
-
-		if ( ! isset($options['CURLOPT_HEADER']) ) {
-			$options['CURLOPT_HEADER'] = true;
-		}
-
-		if ( ! isset($options['CURLOPT_RETURNTRANSFER']) ) {
-			$options['CURLOPT_RETURNTRANSFER'] = true;
-		}
 
 		foreach ($options as $option => $value) {
 			$option = str_replace( 'CURLOPT_', '', strtoupper($option) );

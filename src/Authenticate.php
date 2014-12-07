@@ -103,9 +103,6 @@ class Authenticate {
 
 		// build curl request
 		$options = array(
-			'CURLOPT_MAXREDIRS' => 4,
-			'CURLOPT_RETURNTRANSFER' => true,
-			'CURLOPT_FOLLOWLOCATION' => true,
 			'CURLOPT_COOKIEJAR' => self::$cookie,
 			'CURLOPT_COOKIEFILE' => self::$cookie,
 		);
@@ -146,9 +143,6 @@ class Authenticate {
 		$data['lt'] = self::_get_execution_key($response);
 
 		$options = array(
-			'CURLOPT_MAXREDIRS' => 4,
-			'CURLOPT_RETURNTRANSFER' => true,
-			'CURLOPT_FOLLOWLOCATION' => true,
 			'CURLOPT_COOKIEJAR' => self::$cookie,
 			'CURLOPT_COOKIEFILE' => self::$cookie,
 			'CURLOPT_POST' => count($data),
@@ -178,9 +172,6 @@ class Authenticate {
 	private static function _get_execution_key() {
 		// build curl request
 		$options = array(
-			'CURLOPT_MAXREDIRS' => 4,
-			'CURLOPT_RETURNTRANSFER' => true,
-			'CURLOPT_FOLLOWLOCATION' => true,
 			'CURLOPT_COOKIEJAR' => self::$cookie,
 			'CURLOPT_COOKIEFILE' => self::$cookie,
 		);
