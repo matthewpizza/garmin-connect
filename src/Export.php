@@ -58,8 +58,9 @@ class Export {
 			die('Authentication Error');
 		}
 
-		if ( $this->_get_total_activity_count() === $this->_get_saved_activities_count($output_path) ) {
 		$this->username = $this->client->username();
+
+		if ( $this->total_activities() === $this->saved_activities( $output_path ) ) {
 			return;
 		}
 
@@ -140,32 +141,12 @@ class Export {
 	/**
 	 * Get total activity count
 	 *
-	 * @uses http://connect.garmin.com/proxy/userstats-service/
-	 * @return int
+	 * @return integer|boolean
 	 */
-	private function _get_total_activity_count() {
-		if ( $total_activities = Tools::cache_get('total_activities', $this->username) ) {
-			return $total_activities;
-		}
+	private function total_activities() {
 
-		$response = Tools::curl(
-			"http://connect.garmin.com/proxy/userstats-service/statistics/{$this->username}",
-			array(
-				'CURLOPT_COOKIEJAR' => $this->cookie,
-				'CURLOPT_COOKIEFILE' => $this->cookie,
-			),
-			'GET'
-		);
+		return $this->client->totals( 'activities' );
 
-		if ( $response['headers']['http_code'] !== 200 ) {
-			die("{$response['headers']['http_code']} error on total activity request. Please double check your username as it is used in this request.");
-		}
-
-		$data = json_decode($response['data'], true);
-		$total_activities = (int) $data['userMetrics'][0]['totalActivities'];
-		Tools::cache_set('total_activities', $total_activities, $this->username);
-
-		return $total_activities;
 	}
 
 	/**
@@ -276,11 +257,12 @@ class Export {
 	/**
 	 * Get Saved Activities Count
 	 *
-	 * @param string $path
-	 * @return int
+	 * @param  string $path
+	 * @return integer
 	 */
-	private function _get_saved_activities_count($path) {
-		$index = @file_get_contents($path . 'activities.json');
+	private function saved_activities( $path ) {
+
+		$index = @file_get_contents( "{$path}/activities.json" );
 		$index = json_decode($index, true);
 
 		return count($index);
