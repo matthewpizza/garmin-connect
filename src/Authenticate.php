@@ -14,7 +14,7 @@ class Authenticate {
 	 * @var $client GuzzleHttp\Client
 	 * @access public
 	 */
-	public static $client;
+	public static $client = null;
 
 	/**
 	 * @var string $username
@@ -59,9 +59,9 @@ class Authenticate {
 	 */
 	public static function new_connection($username, $password) {
 
+		self::guzzle();
 		self::$username = $username;
 		self::$password = $password;
-		self::$client = new Guzzle();
 
 		if ( self::is_connected() ) {
 			return true;
@@ -103,6 +103,8 @@ class Authenticate {
 	 */
 	private static function connect() {
 
+		self::guzzle();
+
 		if ( ! $ticket = self::ticket( $data ) ) {
 			die('Cannot find ticket value. Please check connection details.');
 		}
@@ -134,9 +136,11 @@ class Authenticate {
 	 */
 	private static function flow_execution_key() {
 
-		$response = self::client->get( self::login_url, [
+		self::guzzle();
+
+		$response = self::$client->get( self::$login_url, [
 			'cookies' => true,
-			'query' => self::params
+			'query' => self::$params
 		] );
 
 		$crawler = new Crawler( (string) $response->getBody() );
@@ -161,6 +165,8 @@ class Authenticate {
 	 * @return string
 	 */
 	private static function ticket() {
+
+		self::guzzle();
 
 		$data = [
 			'username' => self::$username,
@@ -187,6 +193,17 @@ class Authenticate {
 		}
 
 		return $matches[1];
+
+	}
+
+	/**
+	 * Guzzle Client
+	 */
+	private static guzzle() {
+
+		if ( is_null( self::$client ) ) {
+			self::$client = new Guzzle();
+		}
 
 	}
 
