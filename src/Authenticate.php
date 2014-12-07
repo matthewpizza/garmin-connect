@@ -2,7 +2,6 @@
 
 namespace MatthewSpencer\GarminConnect;
 use Symfony\Component\DomCrawler\Crawler;
-use GuzzleHttp\Client as Guzzle;
 
 /**
  * Authenticate with Garmin Connect
@@ -11,7 +10,7 @@ use GuzzleHttp\Client as Guzzle;
 class Authenticate {
 
 	/**
-	 * @var $client GuzzleHttp\Client
+	 * @var $client MatthewSpencer\GarminConnect\Client
 	 * @access public
 	 */
 	public static $client = null;
@@ -59,7 +58,7 @@ class Authenticate {
 	 */
 	public static function new_connection($username, $password) {
 
-		self::guzzle();
+		self::client();
 		self::$username = $username;
 		self::$password = $password;
 
@@ -108,7 +107,6 @@ class Authenticate {
 	private static function flow_execution_key() {
 
 		$response = self::$client->get( self::$login_url, [
-			'cookies' => true,
 			'query' => self::$params
 		] );
 
@@ -145,7 +143,6 @@ class Authenticate {
 		];
 
 		$response = self::$client->post( self::$login_url, [
-			'cookies' => true,
 			'query' => self::$params,
 			'body' => $data,
 			'allow_redirects' => false,
@@ -164,12 +161,12 @@ class Authenticate {
 	}
 
 	/**
-	 * Guzzle Client
+	 * Client
 	 */
-	private static function guzzle() {
+	private static function client() {
 
 		if ( is_null( self::$client ) ) {
-			self::$client = new Guzzle();
+			self::$client = Client::instance();
 		}
 
 	}
