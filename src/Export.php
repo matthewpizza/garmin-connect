@@ -50,7 +50,7 @@ class Export {
 		}
 
 		$this->username = $username;
-		$this->cookie = dirname(dirname(dirname(__DIR__))) . '/cookies/' . $username;
+		$this->cookie = dirname(__DIR__) . '/cookies/' . $username;
 
 		$connected = Authenticate::make_connection($username, $password);
 
