@@ -267,33 +267,20 @@ class Export {
 	 * @param string $path
 	 * @return array $new
 	 */
-	private function _get_new_activities($activities, $path) {
-		$index = @file_get_contents($path . 'activities.json');
+	private function new_activities( $activities, $path ) {
+
+		$index = @file_get_contents( "{$path}/activities.json" );
 
 		if ( ! $index ) {
 			return $activities;
 		}
 
-		$index = json_decode($index, true);
+		$saved = json_decode( $index, true );
+		$ids = __::pluck( $saved, 'id' );
 
-		$index_ids = array();
-		$activities_ids = array();
-		$new = $activities;
-
-		foreach ($index as $key => $activity) {
-			$index_ids[$key] = $activity['id'];
-		}
-
-		foreach ($activities as $key => $activity) {
-			$activities_ids[$key] = $activity['id'];
-		}
-
-		foreach ($index_ids as $id) {
-			if ( array_search($id, $activities_ids) !== false ) {
-				$key = array_search($id, $activities_ids);
-				unset($new[$key]);
-			}
-		}
+		$new = __::filter( $activities, function( $item ) use( $ids ) {
+			return ! in_array( $item['id'], $ids );
+		} );
 
 		return $new;
 	}
