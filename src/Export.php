@@ -64,7 +64,6 @@ class Export {
 			return;
 		}
 
-		$activities = $this->_get_list_of_activities();
 		$downloaded = $this->_download_activities($activities, $output_path);
 
 		if ( $downloaded ) {
@@ -79,45 +78,38 @@ class Export {
 	 * @uses http://connect.garmin.com/proxy/activitylist-service/activities/
 	 * @return array $activities
 	 */
-	private function _get_list_of_activities() {
-		if ( $activities = Cache::get('list_of_activities', $this->username) ) {
+	private function list_of_activities() {
+
+		if ( $activities = Cache::get( 'list_of_activities', $this->username ) ) {
 			return $activities;
 		}
 
-		// get total
-		$total_activities = $this->total_activities();
-
-		$limit = 100;
-		$how_many_loops = ceil($total_activities/$limit);
+		$total = $this->total_activities();
+		$limit = 20;
+		$requests = ceil( $total / $limit );
 		$activities = array();
 
 		$url = "http://connect.garmin.com/proxy/activitylist-service/activities/{$this->username}";
 
-		for ( $i = 0; $i < $how_many_loops; $i++) {
-			$pagination = $total_activities - ($limit * ($i + 1));
+		for ( $i = 0; $i < $requests; $i++ ) {
+			$pagination = $total - ( $limit * ( $i + 1 ) );
 
 			if ( $pagination < 0 ) {
 				$limit = $limit + $pagination;
 				$pagination = 1;
 			}
 
-			$params = http_build_query(array(
-				'start' => $pagination,
-				'limit' => $limit,
-			));
+			$response = $this->client->get( $url, [
+				'query' => [
+					'start' => $pagination,
+					'limit' => $limit,
+				],
+			] );
 
-			$response = Tools::curl(
-				"{$url}?{$params}",
-				array(
-					'CURLOPT_COOKIEJAR' => $this->cookie,
-					'CURLOPT_COOKIEFILE' => $this->cookie,
-				),
-				'GET'
-			);
-
-			$data = json_decode($response['data'], true);
+			$data = json_decode( (string) $response->getBody(), true );
 
 			foreach ( $data['activityList'] as $activity ) {
+
 				$activities[] = array(
 					'id' => $activity['activityId'],
 					'start_time' => array(
@@ -125,17 +117,17 @@ class Export {
 						'gmt' => $activity['startTimeGMT'],
 					),
 					'type' => $activity['activityType']['typeKey'],
-
-					// distance is in meters
-					'distance' => $activity['distance'],
+					'distance' => $activity['distance'], // distance is in meters
 				);
+
 			}
 
 		}
 
-		Cache::set('list_of_activities', $activities, $this->username);
+		Cache::set( 'list_of_activities', $activities, $this->username );
 
 		return $activities;
+
 	}
 
 	/**
