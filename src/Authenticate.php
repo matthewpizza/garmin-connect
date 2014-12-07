@@ -209,7 +209,7 @@ class Authenticate {
 	 * Setup Cookie
 	 */
 	private static function _cookie() {
-		self::$cookie = dirname(dirname(dirname(__DIR__))) . '/cookies/' . self::$username;
+		self::$cookie = dirname(__DIR__) . '/cookies/' . self::$username;
 
 		if ( ! file_exists(self::$cookie) ) {
 			file_put_contents(self::$cookie, '');
