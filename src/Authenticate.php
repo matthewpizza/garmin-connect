@@ -154,7 +154,7 @@ class Authenticate {
 
 		$response = Tools::curl($request, $options, $method);
 
-		if ( strpos($response['headers']['url'], 'sso.garmin.com/sso/login') === false ) {
+		if ( strpos($response['headers']['url'], 'connect.garmin.com') !== false ) {
 			return true;
 		}
 		else {
