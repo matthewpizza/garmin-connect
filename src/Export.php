@@ -51,13 +51,13 @@ class Export {
 
 		}
 
-		$connected = Authenticate::new_connection($email, $password);
-		$this->client = Client::instance();
+		$connected = Authenticate::new_connection( $email, $password );
 
 		if ( ! $connected ) {
 			die('Authentication Error');
 		}
 
+		$this->client = Client::instance();
 		$this->username = $this->client->username();
 
 		if ( $this->total_activities() === $this->saved_activities( $output_path ) ) {
