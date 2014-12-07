@@ -58,12 +58,29 @@ class Authenticate {
 	 */
 	public static function new_connection($email, $password) {
 
+		if ( self::is_connected() ) return true;
+
 		self::client();
 		self::$email = $email;
 		self::$password = $password;
 
 		$connected = self::connect();
 		return $connected;
+
+	}
+
+	/**
+	 * Is Connected?
+	 *
+	 * @return boolean
+	 */
+	public static function is_connected() {
+
+		self::client();
+
+		$username = self::$client->username();
+
+		return $username !== '';
 
 	}
 
