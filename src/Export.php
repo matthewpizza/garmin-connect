@@ -31,13 +31,17 @@ class Export {
 	 */
 	public function __construct($username, $password, $output_path) {
 
-		if (substr($output_path, -1) !== '/') {
-			$output_path = "{$output_path}/";
+		if ( substr( $output_path, -1 ) !== '/' ) {
+			$output_path = rtrim( $output_path, '/\\' );
 		}
 
-		if ( ! file_exists($output_path) ) {
-			die("Output path does not exist: {$output_path}");
-		}
+		if ( ! file_exists( $output_path ) ) {
+
+			$created = mkdir( $output_path, 0777, true );
+
+			if ( ! $created ) {
+				die("Cannot create output path: {$output_path}");
+			}
 
 		$this->username = $username;
 		$this->cookie = dirname(__DIR__) . '/cookies/' . $username;
