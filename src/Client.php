@@ -2,6 +2,7 @@
 
 namespace MatthewSpencer\GarminConnect;
 use GuzzleHttp\Client as Guzzle;
+use GuzzleHttp\Cookie\CookieJar;
 
 /**
  * Garmin Connect Client
@@ -22,11 +23,18 @@ class Client {
 	public $guzzle = null;
 
 	/**
+	 * @var $guzzle GuzzleHttp\Cookie\CookieJar
+	 * @access public
+	 */
+	public $jar = null;
+
+	/**
 	 * Public Constructor
 	 */
 	public function __construct() {
 
 		$this->guzzle = new Guzzle();
+		$this->jar = new CookieJar();
 
 	}
 
@@ -54,7 +62,7 @@ class Client {
 	 */
 	public function get( $url, $params = [] ) {
 
-		$params = array_merge( $params, [ 'cookies' => true ] );
+		$params = array_merge( $params, [ 'cookies' => $this->jar ] );
 
 		$response = $this->guzzle->get( $url, $params );
 
@@ -71,7 +79,7 @@ class Client {
 	 */
 	public function post( $url, $params = [] ) {
 
-		$params = array_merge( $params, [ 'cookies' => true ] );
+		$params = array_merge( $params, [ 'cookies' => $this->jar ] );
 
 		$response = $this->guzzle->post( $url, $params );
 
@@ -87,9 +95,7 @@ class Client {
 	 */
 	public function username() {
 
-		$response = $this->get( 'https://connect.garmin.com/user/username', [
-			'cookies' => true,
-		] );
+		$response = $this->get( 'https://connect.garmin.com/user/username' );
 
 		if ( ! $body = json_decode( (string) $response->getBody(), true ) ) {
 			return false;
