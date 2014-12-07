@@ -50,7 +50,7 @@ class Export {
 		}
 
 		$this->username = $username;
-		$this->cookie = dirname(dirname(dirname(__DIR__))) . '/cookies/' . $username;
+		$this->cookie = dirname(__DIR__) . '/cookies/' . $username;
 
 		$connected = Authenticate::new_connection($username, $password);
 
@@ -107,9 +107,6 @@ class Export {
 			$response = Tools::curl(
 				"{$url}?{$params}",
 				array(
-					'CURLOPT_MAXREDIRS' => 4,
-					'CURLOPT_RETURNTRANSFER' => true,
-					'CURLOPT_FOLLOWLOCATION' => true,
 					'CURLOPT_COOKIEJAR' => $this->cookie,
 					'CURLOPT_COOKIEFILE' => $this->cookie,
 				),
@@ -153,9 +150,6 @@ class Export {
 		$response = Tools::curl(
 			"http://connect.garmin.com/proxy/userstats-service/statistics/{$this->username}",
 			array(
-				'CURLOPT_MAXREDIRS' => 4,
-				'CURLOPT_RETURNTRANSFER' => true,
-				'CURLOPT_FOLLOWLOCATION' => true,
 				'CURLOPT_COOKIEJAR' => $this->cookie,
 				'CURLOPT_COOKIEFILE' => $this->cookie,
 			),
@@ -223,9 +217,6 @@ class Export {
 		$response = Tools::curl(
 			"http://connect.garmin.com/proxy/activity-service-1.1/{$type}/activity/{$id}?full=true",
 			array(
-				'CURLOPT_MAXREDIRS' => 4,
-				'CURLOPT_RETURNTRANSFER' => true,
-				'CURLOPT_FOLLOWLOCATION' => true,
 				'CURLOPT_COOKIEJAR' => $this->cookie,
 				'CURLOPT_COOKIEFILE' => $this->cookie,
 				'CURLOPT_FILE' => $file,
