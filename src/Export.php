@@ -17,20 +17,10 @@ use __;
 class Export {
 
 	/**
-	 * Username
-	 *
 	 * @var string $username
 	 * @access public
 	 */
 	public $username;
-
-	/**
-	 * Path to cookie
-	 *
-	 * @var string $cookie
-	 * @access public
-	 */
-	public $cookie;
 
 	/**
 	 * Create export client
@@ -46,7 +36,7 @@ class Export {
 		}
 
 		if ( ! file_exists($output_path) ) {
-			die("Output path does not exist\n");
+			die("Output path does not exist: {$output_path}");
 		}
 
 		$this->username = $username;
@@ -55,7 +45,7 @@ class Export {
 		$connected = Authenticate::new_connection($username, $password);
 
 		if ( ! $connected ) {
-			die("Authentication Error\n");
+			die('Authentication Error');
 		}
 
 		if ( $this->_get_total_activity_count() === $this->_get_saved_activities_count($output_path) ) {
@@ -66,7 +56,7 @@ class Export {
 		$downloaded = $this->_download_activities($activities, $output_path);
 
 		if ( $downloaded ) {
-			die("Done!\n");
+			die('Done!');
 		}
 
 	}
@@ -157,7 +147,7 @@ class Export {
 		);
 
 		if ( $response['headers']['http_code'] !== 200 ) {
-			die("{$response['headers']['http_code']} error on total activity request. Please double check your username as it is used in this request.\n");
+			die("{$response['headers']['http_code']} error on total activity request. Please double check your username as it is used in this request.");
 		}
 
 		$data = json_decode($response['data'], true);
