@@ -49,8 +49,7 @@ class Export {
 				die("Cannot create output path: {$output_path}");
 			}
 
-		$this->username = $username;
-		$this->cookie = dirname(__DIR__) . '/cookies/' . $username;
+		}
 
 		$connected = Authenticate::new_connection($email, $password);
 		$this->client = Client::instance();
@@ -60,6 +59,7 @@ class Export {
 		}
 
 		if ( $this->_get_total_activity_count() === $this->_get_saved_activities_count($output_path) ) {
+		$this->username = $this->client->username();
 			return;
 		}
 
