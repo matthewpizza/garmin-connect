@@ -80,12 +80,12 @@ class Export {
 	 * @return array $activities
 	 */
 	private function _get_list_of_activities() {
-		if ( $activities = Tools::cache_get('list_of_activities', $this->username) ) {
+		if ( $activities = Cache::get('list_of_activities', $this->username) ) {
 			return $activities;
 		}
 
 		// get total
-		$total_activities = $this->_get_total_activity_count();
+		$total_activities = $this->total_activities();
 
 		$limit = 100;
 		$how_many_loops = ceil($total_activities/$limit);
@@ -133,7 +133,7 @@ class Export {
 
 		}
 
-		Tools::cache_set('list_of_activities', $activities, $this->username);
+		Cache::set('list_of_activities', $activities, $this->username);
 
 		return $activities;
 	}
