@@ -91,17 +91,66 @@ class Client {
 	 * Username for currently logged in user
 	 *
 	 * @uses http://connect.garmin.com/user/username
-	 * @return string|bool
+	 * @return string $username
 	 */
 	public function username() {
+
+		if ( $username = Cache::get( 'username' ) ) {
+			return $username;
+		}
 
 		$response = $this->get( 'https://connect.garmin.com/user/username' );
 
 		if ( ! $body = json_decode( (string) $response->getBody(), true ) ) {
-			return false;
+			return '';
 		}
 
-		return $body['username'];
+		$username = $body['username'];
+
+		if ( ! empty( $username ) ) {
+			Cache::set( 'username', $username );
+		}
+
+		return $username;
+
+	}
+
+	/**
+	 * Totals
+	 *
+	 * @return mixed
+	 */
+	public function totals( $key = false ) {
+
+		$username = $this->username();
+
+		if ( ! $totals = Cache::get( 'totals', $username ) ) {
+
+			$response = $this->get( "http://connect.garmin.com/proxy/userstats-service/statistics/{$username}" );
+
+			if ( ! $body = json_decode( (string) $response->getBody(), true ) ) {
+				return false;
+			}
+
+			$totals = [
+				'activities' => (int) $body['userMetrics'][0]['totalActivities'],
+				'distance' => (float) $body['userMetrics'][0]['totalDistance'],
+				'duration' => (float) $body['userMetrics'][0]['totalDuration'],
+				'calories' => (float) $body['userMetrics'][0]['totalCalories'],
+				'elevationgain' => (float) $body['userMetrics'][0]['totalElevationGain'],
+			];
+
+			Cache::set( 'totals', $totals, $username );
+
+		}
+
+		if ( $key !== false ) {
+
+			return isset( $totals[ $key ] ) ? $totals[ $key ] : false;
+
+		}
+
+		return $totals;
 
 	}
 
