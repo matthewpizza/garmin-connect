@@ -23,6 +23,12 @@ class Export {
 	public $username;
 
 	/**
+	 * @var object $client MatthewSpencer\GarminConnect\Client
+	 * @access private
+	 */
+	private $client;
+
+	/**
 	 * Create export client
 	 *
 	 * @param string $email
@@ -47,6 +53,7 @@ class Export {
 		$this->cookie = dirname(__DIR__) . '/cookies/' . $username;
 
 		$connected = Authenticate::new_connection($email, $password);
+		$this->client = Client::instance();
 
 		if ( ! $connected ) {
 			die('Authentication Error');
