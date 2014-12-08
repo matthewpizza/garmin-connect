@@ -17,56 +17,58 @@ use __;
 class Export {
 
 	/**
-	 * Username
-	 *
 	 * @var string $username
 	 * @access public
 	 */
 	public $username;
 
 	/**
-	 * Path to cookie
-	 *
-	 * @var string $cookie
-	 * @access public
+	 * @var object $client MatthewSpencer\GarminConnect\Client
+	 * @access private
 	 */
-	public $cookie;
+	private $client;
 
 	/**
 	 * Create export client
 	 *
-	 * @param string $username
+	 * @param string $email
 	 * @param string $password
 	 * @param string $output_path
 	 */
-	public function __construct($username, $password, $output_path) {
+	public function __construct( $email, $password, $output_path ) {
 
-		if (substr($output_path, -1) !== '/') {
-			$output_path = "{$output_path}/";
+		if ( substr( $output_path, -1 ) === '/' ) {
+			$output_path = rtrim( $output_path, '/\\' );
 		}
 
-		if ( ! file_exists($output_path) ) {
-			die("Output path does not exist\n");
+		if ( ! file_exists( $output_path ) ) {
+
+			$created = mkdir( $output_path, 0777, true );
+
+			if ( ! $created ) {
+				die( "Cannot create output path: {$output_path}" );
+			}
+
 		}
 
-		$this->username = $username;
-		$this->cookie = dirname(__DIR__) . '/cookies/' . $username;
-
-		$connected = Authenticate::make_connection($username, $password);
+		$connected = Authenticate::new_connection( $email, $password );
 
 		if ( ! $connected ) {
-			die("Authentication Error\n");
+			die( 'Authentication Error' );
 		}
 
-		if ( $this->_get_total_activity_count() === $this->_get_saved_activities_count($output_path) ) {
+		$this->client = Client::instance();
+		$this->username = $this->client->username();
+
+		if ( $this->total_activities() === $this->saved_activities( $output_path ) ) {
 			return;
 		}
 
-		$activities = $this->_get_list_of_activities();
-		$downloaded = $this->_download_activities($activities, $output_path);
+		$activities = $this->list_of_activities();
+		$downloaded = $this->download_activities( $activities, $output_path );
 
 		if ( $downloaded ) {
-			die("Done!\n");
+			die( 'Done!' );
 		}
 
 	}
@@ -77,45 +79,38 @@ class Export {
 	 * @uses http://connect.garmin.com/proxy/activitylist-service/activities/
 	 * @return array $activities
 	 */
-	private function _get_list_of_activities() {
-		if ( $activities = Tools::cache_get('list_of_activities', $this->username) ) {
+	private function list_of_activities() {
+
+		if ( $activities = Cache::get( 'list_of_activities', $this->username ) ) {
 			return $activities;
 		}
 
-		// get total
-		$total_activities = $this->_get_total_activity_count();
-
-		$limit = 100;
-		$how_many_loops = ceil($total_activities/$limit);
+		$total = $this->total_activities();
+		$limit = 20;
+		$requests = ceil( $total / $limit );
 		$activities = array();
 
 		$url = "http://connect.garmin.com/proxy/activitylist-service/activities/{$this->username}";
 
-		for ( $i = 0; $i < $how_many_loops; $i++) {
-			$pagination = $total_activities - ($limit * ($i + 1));
+		for ( $i = 0; $i < $requests; $i++ ) {
+			$pagination = $total - ( $limit * ( $i + 1 ) );
 
 			if ( $pagination < 0 ) {
 				$limit = $limit + $pagination;
 				$pagination = 1;
 			}
 
-			$params = http_build_query(array(
-				'start' => $pagination,
-				'limit' => $limit,
-			));
+			$response = $this->client->get( $url, [
+				'query' => [
+					'start' => $pagination,
+					'limit' => $limit,
+				],
+			] );
 
-			$response = Tools::curl(
-				"{$url}?{$params}",
-				array(
-					'CURLOPT_COOKIEJAR' => $this->cookie,
-					'CURLOPT_COOKIEFILE' => $this->cookie,
-				),
-				'GET'
-			);
-
-			$data = json_decode($response['data'], true);
+			$data = json_decode( (string) $response->getBody(), true );
 
 			foreach ( $data['activityList'] as $activity ) {
+
 				$activities[] = array(
 					'id' => $activity['activityId'],
 					'start_time' => array(
@@ -123,48 +118,28 @@ class Export {
 						'gmt' => $activity['startTimeGMT'],
 					),
 					'type' => $activity['activityType']['typeKey'],
-
-					// distance is in meters
-					'distance' => $activity['distance'],
+					'distance' => $activity['distance'], // distance is in meters
 				);
+
 			}
 
 		}
 
-		Tools::cache_set('list_of_activities', $activities, $this->username);
+		Cache::set( 'list_of_activities', $activities, $this->username );
 
 		return $activities;
+
 	}
 
 	/**
 	 * Get total activity count
 	 *
-	 * @uses http://connect.garmin.com/proxy/userstats-service/
-	 * @return int
+	 * @return integer|boolean
 	 */
-	private function _get_total_activity_count() {
-		if ( $total_activities = Tools::cache_get('total_activities', $this->username) ) {
-			return $total_activities;
-		}
+	private function total_activities() {
 
-		$response = Tools::curl(
-			"http://connect.garmin.com/proxy/userstats-service/statistics/{$this->username}",
-			array(
-				'CURLOPT_COOKIEJAR' => $this->cookie,
-				'CURLOPT_COOKIEFILE' => $this->cookie,
-			),
-			'GET'
-		);
+		return $this->client->totals( 'activities' );
 
-		if ( $response['headers']['http_code'] !== 200 ) {
-			die("{$response['headers']['http_code']} error on total activity request. Please double check your username as it is used in this request.\n");
-		}
-
-		$data = json_decode($response['data'], true);
-		$total_activities = (int) $data['userMetrics'][0]['totalActivities'];
-		Tools::cache_set('total_activities', $total_activities, $this->username);
-
-		return $total_activities;
 	}
 
 	/**
@@ -173,116 +148,115 @@ class Export {
 	 * @param array $activites
 	 * @param string $path
 	 */
-	private function _download_activities($activities, $path) {
-		$activities = $this->_get_new_activities($activities, $path);
+	private function download_activities( $activities, $path ) {
+
+		$activities = $this->new_activities( $activities, $path );
 		$count = 0;
 
 		foreach ( $activities as $activity ) {
 
 			if ( $count % 10 === 0 && $count !== 0 ) {
-				sleep(1);
+				sleep(0.5); // for rate limiting
 			}
 
-			if (
-				$this->_download_file($activity['id'], 'gpx', $path) &&
-				$this->_download_file($activity['id'], 'tcx', $path)
-			) {
-				$this->_update_activities_index($activity, $path);
+			$gpx = $this->download_file( $activity['id'], 'gpx', $path );
+			$tcx = $this->download_file( $activity['id'], 'tcx', $path );
+
+			if ( $gpx && $tcx ) {
+				$this->update_activities( $activity, $path );
 			}
 
 			$count++;
 		}
 
 		return true;
+
 	}
 
 	/**
 	 * Download File
 	 *
-	 * @param int $id
+	 * @param integer $id
 	 * @param string $type gpx or tcx
 	 * @param string $path
-	 * @return bool
+	 *
+	 * @return boolean
 	 */
-	private function _download_file( $id, $type, $path ) {
-		if ( ! file_exists($path . $type) ) {
-			mkdir($path . $type);
+	private function download_file( $id, $type, $path ) {
+
+		$url = "http://connect.garmin.com/proxy/activity-service-1.1/{$type}/activity/{$id}?full=true";
+		$filename = "{$path}/{$type}/activity_{$id}.{$type}";
+		$directory = "{$path}/{$type}";
+
+		if ( file_exists( $filename ) ) return true;
+
+		if ( ! file_exists( $directory ) ) {
+
+			$created = mkdir( $directory, 0777, true );
+
+			if ( ! $created ) {
+				die( "Cannot create: {$directory}" );
+			}
+
 		}
 
-		$this_file = $path . $type . "/activity_{$id}.{$type}";
+		$response = $this->client->get( $url, [
+			'save_to' => $filename,
+		] );
 
-		set_time_limit(0);
-		$file = fopen($this_file, 'w+');
+		return file_exists( $filename );
 
-		$response = Tools::curl(
-			"http://connect.garmin.com/proxy/activity-service-1.1/{$type}/activity/{$id}?full=true",
-			array(
-				'CURLOPT_COOKIEJAR' => $this->cookie,
-				'CURLOPT_COOKIEFILE' => $this->cookie,
-				'CURLOPT_FILE' => $file,
-				'CURLOPT_TIMEOUT' => 50,
-				'CURLOPT_HEADER' => false,
-			),
-			'GET'
-		);
-
-		fclose($file);
-
-		return file_exists($this_file);
 	}
 
 	/**
 	 * Update Activities Index
 	 *
-	 * @param array $new_activity
+	 * @param array $activity
 	 * @param string $path
+	 * @return boolean
 	 */
-	private function _update_activities_index($new_activity, $path) {
-		$index = @file_get_contents($path . 'activities.json');
-		$index = json_decode($index, true);
+	private function update_activities( $activity, $path ) {
 
-		$new_activity['gpx'] = "gpx/activity_{$new_activity['id']}.gpx";
-		$new_activity['tcx'] = "tcx/activity_{$new_activity['id']}.tcx";
+		$index = @file_get_contents( "{$path}/activities.json" );
 
-		if ( ! empty($index) ) {
-			$ok_to_go = true;
+		$data = json_decode( $index, true );
+		$data = ! empty( $data ) ? $data : array();
 
-			// no duplicates!
-			foreach ( $index as $activity ) {
-				if ( $activity['id'] === $new_activity['id'] ) {
-					$ok_to_go = false;
-					break;
-				}
-			}
+		$exists = __::any( $data, function( $item ) {
+			return $item['id'] === $activity['id'];
+		} );
 
-			// bail if duplicate
-			if ( ! $ok_to_go ) return;
-		}
-		else {
-			$index = array();
-		}
+		if ( $exists ) return true;
 
-		$index[] = $new_activity;
+		$activity['gpx'] = "gpx/activity_{$activity['id']}.gpx";
+		$activity['tcx'] = "tcx/activity_{$activity['id']}.tcx";
 
-		$index = __::sortBy($index, function($activity) {
-			return $activity['id'];
-		});
+		$data[] = $activity;
 
-		$index = json_encode($index, JSON_PRETTY_PRINT);
-		file_put_contents($path . 'activities.json', $index);
+		$data = __::sortBy( $data, function( $item ) {
+			return $item['id'];
+		} );
+
+		$data = json_encode( $data, JSON_PRETTY_PRINT );
+		$bytes = file_put_contents( "{$path}/activities.json", $data );
+
+		return $bytes === false ? false : true;
+
 	}
 
 	/**
 	 * Get Saved Activities Count
 	 *
-	 * @param string $path
-	 * @return int
+	 * @param  string $path
+	 * @return integer
 	 */
-	private function _get_saved_activities_count($path) {
-		$index = @file_get_contents($path . 'activities.json');
-		$index = json_decode($index, true);
+	private function saved_activities( $path ) {
 
-		return count($index);
+		$index = @file_get_contents( "{$path}/activities.json" );
+		$index = json_decode( $index, true );
+
+		return count( $index );
+
 	}
 
 	/**
@@ -292,35 +266,23 @@ class Export {
 	 * @param string $path
 	 * @return array $new
 	 */
-	private function _get_new_activities($activities, $path) {
-		$index = @file_get_contents($path . 'activities.json');
+	private function new_activities( $activities, $path ) {
+
+		$index = @file_get_contents( "{$path}/activities.json" );
 
 		if ( ! $index ) {
 			return $activities;
 		}
 
-		$index = json_decode($index, true);
+		$saved = json_decode( $index, true );
+		$ids = __::pluck( $saved, 'id' );
 
-		$index_ids = array();
-		$activities_ids = array();
-		$new = $activities;
-
-		foreach ($index as $key => $activity) {
-			$index_ids[$key] = $activity['id'];
-		}
-
-		foreach ($activities as $key => $activity) {
-			$activities_ids[$key] = $activity['id'];
-		}
-
-		foreach ($index_ids as $id) {
-			if ( array_search($id, $activities_ids) !== false ) {
-				$key = array_search($id, $activities_ids);
-				unset($new[$key]);
-			}
-		}
+		$new = __::filter( $activities, function( $item ) use( $ids ) {
+			return ! in_array( $item['id'], $ids );
+		} );
 
 		return $new;
+
 	}
 
 }

@@ -12,12 +12,12 @@
  * Get Options
  */
 
-$shortopts = 'u::';
+$shortopts = 'e::';
 $shortopts .= 'p::';
 $shortopts .= 'o::';
 
 $longopts = array(
-	'username::',
+	'email::',
 	'password::',
 	'output_path::',
 );
@@ -31,8 +31,8 @@ $options = getopt($shortopts, $longopts);
  */
 $variable_to_set = array(
 	array(
-		'variable' => 'username',
-		'values' => array('u', 'username'),
+		'variable' => 'email',
+		'values' => array('e', 'email'),
 	),
 	array(
 		'variable' => 'password',
@@ -60,7 +60,7 @@ foreach ( $variable_to_set as $option ) {
 /**
  * Make sure required options are set
  */
-foreach (array('username', 'password', 'output_path') as $variable) {
+foreach (array('email', 'password', 'output_path') as $variable) {
 	if ( ! isset($$variable) ) {
 		die("Please set the {$variable} argument.\n");
 	}
@@ -84,4 +84,4 @@ require_once $autoload;
 /**
  * Run the exporter
  */
-return new MatthewSpencer\GarminConnect\Export($username, $password, $output_path);
+return new MatthewSpencer\GarminConnect\Export($email, $password, $output_path);

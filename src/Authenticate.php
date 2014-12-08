@@ -1,6 +1,7 @@
 <?php
 
 namespace MatthewSpencer\GarminConnect;
+use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Authenticate with Garmin Connect
@@ -9,157 +10,108 @@ namespace MatthewSpencer\GarminConnect;
 class Authenticate {
 
 	/**
-	 * Username
-	 *
-	 * @var string $username
-	 * @access private
+	 * @var $client MatthewSpencer\GarminConnect\Client
+	 * @access public
 	 */
-	private static $username;
+	public static $client = null;
 
 	/**
-	 * Path to cookie
-	 *
-	 * @var string $cookie
+	 * @var string $email
 	 * @access private
 	 */
-	private static $cookie;
+	private static $email;
 
 	/**
-	 * Login Parameter
-	 *
+	 * @var string $password
+	 * @access private
+	 */
+	private static $password;
+
+	/**
 	 * @var array $params
-	 * @access private
+	 * @access public
 	 */
-	private static $params = array(
+	public static $params = array(
 		'service' => 'http://connect.garmin.com/post-auth/login',
 		'clientId' => 'GarminConnect',
 		'consumeServiceTicket' => 'false',
-		// 'webhost' => 'olaxpw-my01.garmin.com',
-		// 'source' => 'http://connect.garmin.com/en-US/signin',
-		// 'redirectAfterAccountLoginUrl' => 'http://connect.garmin.com/post-auth/login',
-		// 'redirectAfterAccountCreationUrl' => 'http://connect.garmin.com/post-auth/login',
-		// 'gauthHost' => 'https://sso.garmin.com/sso',
-		// 'locale' => 'en',
-		// 'id' => 'gauth-widget',
-		// 'cssUrl' => 'https://static.garmincdn.com/com.garmin.connect/ui/src-css/gauth-custom.css',
-		// 'rememberMeShown' => 'true',
-		// 'rememberMeChecked' => 'false',
-		// 'createAccountShown' => 'true',
-		// 'openCreateAccount' => 'false',
-		// 'usernameShown' => 'true',
-		// 'displayNameShown' => 'false',
-		// 'initialFocus' => 'true',
-		// 'embedWidget' => 'false',
 	);
 
 	/**
-	 * Login URL
-	 *
-	 * @var string $url
-	 * @access private
+	 * @var string $login_url
+	 * @access public
 	 */
-	private static $url = 'https://sso.garmin.com/sso/login';
+	public static $login_url = 'https://sso.garmin.com/sso/login';
 
 	/**
-	 * Setup
-	 *
-	 * @param string $username
+	 * @var string $dashboard_url
+	 * @access public
 	 */
-	public static function setup($username) {
-		self::$username = $username;
-		self::_cookie();
-	}
+	public static $dashboard_url = 'http://connect.garmin.com/post-auth/login';
 
 	/**
-	 * Make Connection
+	 * Make New Connection
 	 *
-	 * @param string $username
-	 * @param string $password
+	 * @param  string $email
+	 * @param  string $password
+	 * @return boolean $connected
 	 */
-	public static function make_connection($username, $password) {
+	public static function new_connection($email, $password) {
 
-		self::setup($username);
+		if ( self::is_connected() ) return true;
 
-		if ( self::is_connected($username) ) {
-			return true;
-		}
+		self::client();
+		self::$email = $email;
+		self::$password = $password;
 
-		$maybe = self::_connect($username, $password);
-		return $maybe;
+		$connected = self::connect();
+		return $connected;
 
 	}
 
 	/**
-	 * Test Connection
-	 * Checks to see if already logged in
+	 * Is Connected?
 	 *
-	 * @param string $username
-	 * @return bool $is_connected
+	 * @return boolean
 	 */
-	public static function is_connected($username) {
-		self::setup($username);
+	public static function is_connected() {
 
-		$is_connected = false;
+		self::client();
 
-		// build curl request
-		$options = array(
-			'CURLOPT_COOKIEJAR' => self::$cookie,
-			'CURLOPT_COOKIEFILE' => self::$cookie,
-		);
-		$method = 'GET';
-		$request = self::$url . '?' . http_build_query(self::$params);
+		$username = self::$client->username();
 
-		// get curl response
-		$response = Tools::curl($request, $options, $method);
+		return $username !== '';
 
-		// is connected?
-		// YES: http://connect.garmin.com/dashboard?cid=xxxxxxx
-		// NO: https://sso.garmin.com/sso/login?service=http%3A%2F%2Fconnect.garmin.com%2Fpost-auth%2Flogin&clientId=GarminConnect&consumeServiceTicket=false
-		if ( strpos($response['headers']['url'], 'sso.garmin.com/sso/login') === false ) {
-			$is_connected = true;
-		}
-
-		return $is_connected;
 	}
 
 	/**
 	 * Authenticate with Garmin SSO
 	 *
-	 * @uses https://sso.garmin.com/sso/js/gauth-widget.js
-	 * @param string $username
-	 * @param string $password
-	 * @return bool
+	 * @return boolean
 	 */
-	private static function _connect($username, $password) {
+	private static function connect() {
 
-		// data to post
-		$data = array(
-			'username' => $username,
-			'password' => $password,
-			'_eventId' => 'submit',
-			'embed' => 'true',
-			// 'displayNameRequired' => 'false',
-		);
-		$data['lt'] = self::_get_execution_key($response);
-
-		$options = array(
-			'CURLOPT_COOKIEJAR' => self::$cookie,
-			'CURLOPT_COOKIEFILE' => self::$cookie,
-			'CURLOPT_POST' => count($data),
-			'CURLOPT_POSTFIELDS' => http_build_query($data),
-		);
-		$method = 'POST';
-
-		$request = self::$url . '?' . http_build_query(self::$params);
-
-		$response = Tools::curl($request, $options, $method);
-
-		if ( strpos($response['headers']['url'], 'connect.garmin.com') !== false ) {
-			return true;
+		if ( ! $ticket = self::ticket( $data ) ) {
+			die('Cannot find ticket value. Please check connection details.');
 		}
-		else {
-			die('Could not connect.');
+
+		$response = self::$client->post( self::$dashboard_url, [
+			'query' => [
+				'ticket' => $ticket,
+			],
+			'allow_redirects' => false,
+		] );
+
+		if ( $response->getStatusCode() !== 302 ) {
+			die('Expected 302, saw ' . $response->getStatusCode());
 		}
+
+		$response = self::$client->get( $response->getHeader('Location') );
+
+		if ( $response->getStatusCode() !== 200 ) return false;
+		if ( strpos( (string) $response->getEffectiveUrl(), '://connect.garmin.com/' ) === false ) return false;
+
+		return true;
 
 	}
 
@@ -167,44 +119,73 @@ class Authenticate {
 	 * Get Flow Execution Key
 	 * Grabs from HTML comment
 	 *
-	 * @return string $execution_key
+	 * @return string|bool $execution_key
 	 */
-	private static function _get_execution_key() {
-		// build curl request
-		$options = array(
-			'CURLOPT_COOKIEJAR' => self::$cookie,
-			'CURLOPT_COOKIEFILE' => self::$cookie,
-		);
-		$method = 'GET';
-		$request = self::$url . '?' . http_build_query(self::$params);
+	private static function flow_execution_key() {
 
-		// get curl response
-		$response = Tools::curl($request, $options, $method);
+		$response = self::$client->get( self::$login_url, [
+			'query' => self::$params
+		] );
+
+		$crawler = new Crawler( (string) $response->getBody() );
 
 		// looking for
-		// <!-- flowExecutionKey: [xxxxx] -->
-		// probably will break :/
-		// other option is a hidden input named "lt"
-		preg_match('~<!-- flowExecutionKey: \[(.*?)\] -->~', $response['data'], $matches);
-
-		if ( empty($matches) ) {
-			die('Failed to find flowExecutionKey');
+		// <!-- flowExecutionKey: [xxxx] -->
+		// or
+		// <input name="lt" value="xxxx" type="hidden">
+		try {
+			$execution_key = $crawler->filter('input[name=lt]')->attr('value');
+		} catch ( InvalidArgumentException $e ) {
+			$execution_key = false;
 		}
 
-		$execution_key = $matches[1];
-
 		return $execution_key;
+
 	}
 
 	/**
-	 * Setup Cookie
+	 * Get Ticket Value
+	 *
+	 * @return string
 	 */
-	private static function _cookie() {
-		self::$cookie = dirname(__DIR__) . '/cookies/' . self::$username;
+	private static function ticket() {
 
-		if ( ! file_exists(self::$cookie) ) {
-			file_put_contents(self::$cookie, '');
+		$data = [
+			'username' => self::$email,
+			'password' => self::$password,
+			'_eventId' => 'submit',
+			'embed' => 'true',
+			'displayNameRequired' => 'false',
+			'lt' => self::flow_execution_key(),
+		];
+
+		$response = self::$client->post( self::$login_url, [
+			'query' => self::$params,
+			'body' => $data,
+			'allow_redirects' => false,
+		] );
+
+		// looking for
+		// var response_url = 'http://connect.garmin.com/post-auth/login?ticket=xx-xxxxxxxx-xxxxxxxxxxxxxxxxxxxx-xxx';
+		preg_match( "/ticket=([^']+)'/", (string) $response->getBody(), $matches );
+
+		if ( ! isset( $matches[1] ) ) {
+			return false;
 		}
+
+		return $matches[1];
+
+	}
+
+	/**
+	 * Client
+	 */
+	private static function client() {
+
+		if ( is_null( self::$client ) ) {
+			self::$client = Client::instance();
+		}
+
 	}
 
 }
