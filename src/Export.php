@@ -148,27 +148,29 @@ class Export {
 	 * @param array $activites
 	 * @param string $path
 	 */
-	private function _download_activities($activities, $path) {
-		$activities = $this->_get_new_activities($activities, $path);
+	private function download_activities( $activities, $path ) {
+
+		$activities = $this->new_activities( $activities, $path );
 		$count = 0;
 
 		foreach ( $activities as $activity ) {
 
 			if ( $count % 10 === 0 && $count !== 0 ) {
-				sleep(1);
+				sleep(0.5); // for rate limiting
 			}
 
-			if (
-				$this->_download_file($activity['id'], 'gpx', $path) &&
-				$this->_download_file($activity['id'], 'tcx', $path)
-			) {
-				$this->_update_activities_index($activity, $path);
+			$gpx = $this->download_file( $activity['id'], 'gpx', $path );
+			$tcx = $this->download_file( $activity['id'], 'tcx', $path );
+
+			if ( $gpx && $tcx ) {
+				$this->update_activities( $activity, $path );
 			}
 
 			$count++;
 		}
 
 		return true;
+
 	}
 
 	/**
