@@ -32,9 +32,3 @@ The Export class will download GPX and TCX files for all activities found. It ca
 ```php
 new MatthewSpencer\GarminConnect\Export( $email, $password, $output_path );
 ```
-
-## Requirements
-
-* PHP 5.4 (probably)
-* cURL
-* Composer
