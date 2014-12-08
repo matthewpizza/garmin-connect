@@ -283,6 +283,7 @@ class Export {
 		} );
 
 		return $new;
+
 	}
 
 }
