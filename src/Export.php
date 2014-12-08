@@ -46,7 +46,7 @@ class Export {
 			$created = mkdir( $output_path, 0777, true );
 
 			if ( ! $created ) {
-				die("Cannot create output path: {$output_path}");
+				die( "Cannot create output path: {$output_path}" );
 			}
 
 		}
@@ -54,7 +54,7 @@ class Export {
 		$connected = Authenticate::new_connection( $email, $password );
 
 		if ( ! $connected ) {
-			die('Authentication Error');
+			die( 'Authentication Error' );
 		}
 
 		$this->client = Client::instance();
@@ -68,7 +68,7 @@ class Export {
 		$downloaded = $this->download_activities( $activities, $output_path );
 
 		if ( $downloaded ) {
-			die('Done!');
+			die( 'Done!' );
 		}
 
 	}
