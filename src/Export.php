@@ -64,7 +64,8 @@ class Export {
 			return;
 		}
 
-		$downloaded = $this->_download_activities($activities, $output_path);
+		$activities = $this->list_of_activities();
+		$downloaded = $this->download_activities( $activities, $output_path );
 
 		if ( $downloaded ) {
 			die('Done!');
