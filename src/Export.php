@@ -174,36 +174,36 @@ class Export {
 	/**
 	 * Download File
 	 *
-	 * @param int $id
+	 * @param integer $id
 	 * @param string $type gpx or tcx
 	 * @param string $path
-	 * @return bool
+	 *
+	 * @return boolean
 	 */
-	private function _download_file( $id, $type, $path ) {
-		if ( ! file_exists($path . $type) ) {
-			mkdir($path . $type);
+	private function download_file( $id, $type, $path ) {
+
+		$url = "http://connect.garmin.com/proxy/activity-service-1.1/{$type}/activity/{$id}?full=true";
+		$filename = "{$path}/{$type}/activity_{$id}.{$type}";
+		$directory = "{$path}/{$type}";
+
+		if ( file_exists( $filename ) ) return true;
+
+		if ( ! file_exists( $directory ) ) {
+
+			$created = mkdir( $directory, 0777, true );
+
+			if ( ! $created ) {
+				die( "Cannot create: {$directory}" );
+			}
+
 		}
 
-		$this_file = $path . $type . "/activity_{$id}.{$type}";
+		$response = $this->client->get( $url, [
+			'save_to' => $filename,
+		] );
 
-		set_time_limit(0);
-		$file = fopen($this_file, 'w+');
+		return file_exists( $filename );
 
-		$response = Tools::curl(
-			"http://connect.garmin.com/proxy/activity-service-1.1/{$type}/activity/{$id}?full=true",
-			array(
-				'CURLOPT_COOKIEJAR' => $this->cookie,
-				'CURLOPT_COOKIEFILE' => $this->cookie,
-				'CURLOPT_FILE' => $file,
-				'CURLOPT_TIMEOUT' => 50,
-				'CURLOPT_HEADER' => false,
-			),
-			'GET'
-		);
-
-		fclose($file);
-
-		return file_exists($this_file);
 	}
 
 	/**
@@ -259,6 +259,7 @@ class Export {
 		$index = json_decode( $index, true );
 
 		return count( $index );
+
 	}
 
 	/**
