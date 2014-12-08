@@ -37,7 +37,7 @@ class Export {
 	 */
 	public function __construct( $email, $password, $output_path ) {
 
-		if ( substr( $output_path, -1 ) !== '/' ) {
+		if ( substr( $output_path, -1 ) === '/' ) {
 			$output_path = rtrim( $output_path, '/\\' );
 		}
 
