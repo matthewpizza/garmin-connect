@@ -255,9 +255,9 @@ class Export {
 	private function saved_activities( $path ) {
 
 		$index = @file_get_contents( "{$path}/activities.json" );
-		$index = json_decode($index, true);
+		$index = json_decode( $index, true );
 
-		return count($index);
+		return count( $index );
 	}
 
 	/**
