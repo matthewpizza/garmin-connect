@@ -211,42 +211,37 @@ class Export {
 	/**
 	 * Update Activities Index
 	 *
-	 * @param array $new_activity
+	 * @param array $activity
 	 * @param string $path
+	 * @return boolean
 	 */
-	private function _update_activities_index($new_activity, $path) {
-		$index = @file_get_contents($path . 'activities.json');
-		$index = json_decode($index, true);
+	private function update_activities( $activity, $path ) {
 
-		$new_activity['gpx'] = "gpx/activity_{$new_activity['id']}.gpx";
-		$new_activity['tcx'] = "tcx/activity_{$new_activity['id']}.tcx";
+		$index = @file_get_contents( "{$path}/activities.json" );
 
-		if ( ! empty($index) ) {
-			$ok_to_go = true;
+		$data = json_decode( $index, true );
+		$data = ! empty( $data ) ? $data : array();
 
-			// no duplicates!
-			foreach ( $index as $activity ) {
-				if ( $activity['id'] === $new_activity['id'] ) {
-					$ok_to_go = false;
-					break;
-				}
-			}
+		$exists = __::any( $data, function( $item ) {
+			return $item['id'] === $activity['id'];
+		} );
 
-			// bail if duplicate
-			if ( ! $ok_to_go ) return;
-		}
-		else {
-			$index = array();
-		}
+		if ( $exists ) return true;
 
-		$index[] = $new_activity;
+		$activity['gpx'] = "gpx/activity_{$activity['id']}.gpx";
+		$activity['tcx'] = "tcx/activity_{$activity['id']}.tcx";
 
-		$index = __::sortBy($index, function($activity) {
-			return $activity['id'];
-		});
+		$data[] = $activity;
 
-		$index = json_encode($index, JSON_PRETTY_PRINT);
-		file_put_contents($path . 'activities.json', $index);
+		$data = __::sortBy( $data, function( $item ) {
+			return $item['id'];
+		} );
+
+		$data = json_encode( $data, JSON_PRETTY_PRINT );
+		$bytes = file_put_contents( "{$path}/activities.json", $data );
+
+		return $bytes === false ? false : true;
+
 	}
 
 	/**
