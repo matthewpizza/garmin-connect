@@ -94,7 +94,7 @@ class Client {
 	/**
 	 * Username for currently logged in user
 	 *
-	 * @uses http://connect.garmin.com/user/username
+	 * @uses https://connect.garmin.com/user/username
 	 * @return string $username
 	 */
 	public function username() {
@@ -130,7 +130,7 @@ class Client {
 
 		if ( ! $totals = Cache::get( 'totals', $username ) ) {
 
-			$response = $this->get( "http://connect.garmin.com/proxy/userstats-service/statistics/{$username}" );
+			$response = $this->get( "https://connect.garmin.com/proxy/userstats-service/statistics/{$username}" );
 
 			if ( ! $body = json_decode( (string) $response->getBody(), true ) ) {
 				return false;

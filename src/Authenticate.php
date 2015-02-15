@@ -32,7 +32,7 @@ class Authenticate {
 	 * @access public
 	 */
 	public static $params = array(
-		'service' => 'http://connect.garmin.com/post-auth/login',
+		'service' => 'https://connect.garmin.com/post-auth/login',
 		'clientId' => 'GarminConnect',
 		'consumeServiceTicket' => 'false',
 	);
@@ -47,7 +47,7 @@ class Authenticate {
 	 * @var string $dashboard_url
 	 * @access public
 	 */
-	public static $dashboard_url = 'http://connect.garmin.com/post-auth/login';
+	public static $dashboard_url = 'https://connect.garmin.com/post-auth/login';
 
 	/**
 	 * Make New Connection
@@ -166,7 +166,7 @@ class Authenticate {
 		] );
 
 		// looking for
-		// var response_url = 'http://connect.garmin.com/post-auth/login?ticket=xx-xxxxxxxx-xxxxxxxxxxxxxxxxxxxx-xxx';
+		// var response_url = 'https://connect.garmin.com/post-auth/login?ticket=xx-xxxxxxxx-xxxxxxxxxxxxxxxxxxxx-xxx';
 		preg_match( "/ticket=([^']+)'/", (string) $response->getBody(), $matches );
 
 		if ( ! isset( $matches[1] ) ) {

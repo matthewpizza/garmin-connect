@@ -76,7 +76,7 @@ class Export {
 	/**
 	 * Create Array of All Activities
 	 *
-	 * @uses http://connect.garmin.com/proxy/activitylist-service/activities/
+	 * @uses https://connect.garmin.com/proxy/activitylist-service/activities/
 	 * @return array $activities
 	 */
 	private function list_of_activities() {
@@ -90,7 +90,7 @@ class Export {
 		$requests = ceil( $total / $limit );
 		$activities = array();
 
-		$url = "http://connect.garmin.com/proxy/activitylist-service/activities/{$this->username}";
+		$url = "https://connect.garmin.com/proxy/activitylist-service/activities/{$this->username}";
 
 		for ( $i = 0; $i < $requests; $i++ ) {
 			$pagination = $total - ( $limit * ( $i + 1 ) );
@@ -184,7 +184,7 @@ class Export {
 	 */
 	private function download_file( $id, $type, $path ) {
 
-		$url = "http://connect.garmin.com/proxy/activity-service-1.1/{$type}/activity/{$id}?full=true";
+		$url = "https://connect.garmin.com/proxy/activity-service-1.1/{$type}/activity/{$id}?full=true";
 		$filename = "{$path}/{$type}/activity_{$id}.{$type}";
 		$directory = "{$path}/{$type}";
 
