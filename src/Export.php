@@ -60,10 +60,6 @@ class Export {
 		$this->client = Client::instance();
 		$this->username = $this->client->username();
 
-		if ( $this->total_activities() === $this->saved_activities( $output_path ) ) {
-			return;
-		}
-
 		$activities = $this->list_of_activities();
 		$downloaded = $this->download_activities( $activities, $output_path );
 
