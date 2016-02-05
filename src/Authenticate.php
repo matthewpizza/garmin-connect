@@ -92,7 +92,7 @@ class Authenticate {
 	private static function connect() {
 
 		if ( ! $ticket = self::ticket( $data ) ) {
-			die('Cannot find ticket value. Please check connection details.');
+			die( "Cannot find ticket value. Please check connection details.\n" );
 		}
 
 		$response = self::$client->post( self::$dashboard_url, [
@@ -103,7 +103,7 @@ class Authenticate {
 		] );
 
 		if ( $response->getStatusCode() !== 302 ) {
-			die('Expected 302, saw ' . $response->getStatusCode());
+			die( 'Expected 302, saw ' . $response->getStatusCode() . "\n" );
 		}
 
 		$response = self::$client->get( $response->getHeader('Location') );

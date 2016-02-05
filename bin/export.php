@@ -62,7 +62,7 @@ foreach ( $variable_to_set as $option ) {
  */
 foreach (array('email', 'password', 'output_path') as $variable) {
 	if ( ! isset($$variable) ) {
-		die("Please set the {$variable} argument.\n");
+		die( "Please set the {$variable} argument.\n" );
 	}
 }
 
@@ -74,7 +74,7 @@ foreach (array('email', 'password', 'output_path') as $variable) {
 $autoload = dirname(__DIR__) . '/vendor/autoload.php';
 
 if ( ! file_exists($autoload) ) {
-	die("Please generate the autoload by running `composer install`");
+	die( "Please generate the autoload by running `composer install`\n" );
 }
 
 require_once $autoload;
