@@ -180,7 +180,7 @@ class Export {
 	 */
 	private function download_file( $id, $type, $path ) {
 
-		$url = "https://connect.garmin.com/proxy/activity-service-1.1/{$type}/activity/{$id}?full=true";
+		$url = "https://connect.garmin.com/modern/proxy/download-service/export/{$type}/activity/{$id}";
 		$filename = "{$path}/{$type}/activity_{$id}.{$type}";
 		$directory = "{$path}/{$type}";
 
