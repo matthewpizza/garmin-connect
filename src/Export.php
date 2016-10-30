@@ -2,10 +2,10 @@
 
 namespace MatthewSpencer\GarminConnect;
 use __;
+use ZipArchive;
 
 /**
  * Garmin Connect Export
- * Download Activities as GPX and TCX
  *
  * @see http://sergeykrasnov.ru/subsites/dev/garmin-connect-statisics/
  * @see https://github.com/cpfair/tapiriik/blob/master/tapiriik/services/GarminConnect/garminconnect.py
@@ -13,7 +13,6 @@ use __;
  * @see https://forums.garmin.com/showthread.php?72150-connect-garmin-com-signin-question&p=275935#post275935
  * @see http://www.ciscomonkey.net/gc-to-dm-export/
  */
-
 class Export {
 
 	/**
@@ -155,10 +154,9 @@ class Export {
 				sleep(0.5); // for rate limiting
 			}
 
-			$gpx = $this->download_file( $activity['id'], 'gpx', $path );
-			$tcx = $this->download_file( $activity['id'], 'tcx', $path );
+			$success = $this->download_file( $activity['id'], 'original', $path );
 
-			if ( $gpx && $tcx ) {
+			if ( $success ) {
 				$this->update_activities( $activity, $path );
 			}
 
@@ -180,8 +178,8 @@ class Export {
 	 */
 	private function download_file( $id, $type, $path ) {
 
-		$url = "https://connect.garmin.com/modern/proxy/download-service/export/{$type}/activity/{$id}";
-		$filename = "{$path}/{$type}/activity_{$id}.{$type}";
+		$url = 'original' !== $type ? "https://connect.garmin.com/modern/proxy/download-service/export/{$type}/activity/{$id}" : "https://connect.garmin.com/modern/proxy/download-service/files/activity/{$id}";
+		$filename = 'original' !== $type ? "{$path}/{$type}/activity_{$id}.{$type}" : "{$path}/{$type}/activity_{$id}.zip";
 		$directory = "{$path}/{$type}";
 
 		if ( file_exists( $filename ) ) return true;
@@ -199,6 +197,21 @@ class Export {
 		$response = $this->client->get( $url, [
 			'save_to' => $filename,
 		] );
+
+		if ( ! $response ) {
+			unlink( $filename );
+			return false;
+		}
+
+		if ( 'original' === $type ) {
+			$zip = new ZipArchive;
+			$zip->open( $filename );
+			$zip->extractTo( "{$path}/{$type}" );
+			$zip->close();
+			unlink( $filename );
+
+			return true;
+		}
 
 		return file_exists( $filename );
 
@@ -224,8 +237,10 @@ class Export {
 
 		if ( $exists ) return true;
 
-		$activity['gpx'] = "gpx/activity_{$activity['id']}.gpx";
-		$activity['tcx'] = "tcx/activity_{$activity['id']}.tcx";
+		$files = glob( "$path/original/{$activity['id']}.*" );
+		$filename = str_replace( "$path/", '', $files[0] );
+
+		$activity['original'] = $filename;
 
 		$data[] = $activity;
 
