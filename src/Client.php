@@ -3,6 +3,7 @@
 namespace MatthewSpencer\GarminConnect;
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Exception\ClientException;
 
 /**
  * Garmin Connect Client
@@ -68,7 +69,11 @@ class Client {
 
 		$params = array_merge( $params, [ 'cookies' => $this->jar ] );
 
-		$response = $this->guzzle->get( $url, $params );
+		try {
+			$response = $this->guzzle->get( $url, $params );
+		} catch (ClientException $e) {
+			return false;
+		}
 
 		return $response;
 
