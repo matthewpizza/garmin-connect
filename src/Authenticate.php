@@ -39,16 +39,22 @@ class Authenticate {
 	);
 
 	/**
+	 * @var string $dashboard_url
+	 * @access public
+	 */
+	public static $dashboard_url = 'https://connect.garmin.com/modern/';
+
+	/**
 	 * @var string $login_url
 	 * @access public
 	 */
 	public static $login_url = 'https://sso.garmin.com/sso/login';
 
 	/**
-	 * @var string $dashboard_url
+	 * @var string $session_url
 	 * @access public
 	 */
-	public static $dashboard_url = 'https://connect.garmin.com/modern/';
+	public static $session_url = 'https://connect.garmin.com/legacy/session';
 
 	/**
 	 * Make New Connection
@@ -112,7 +118,10 @@ class Authenticate {
 		if ( $response->getStatusCode() !== 200 ) return false;
 		if ( strpos( (string) $response->getEffectiveUrl(), '://connect.garmin.com/' ) === false ) return false;
 
-		return true;
+		// Last bit of magic for authentication.
+		$response = self::$client->get( self::$session_url );
+
+		return $response->getStatusCode() === 200;
 
 	}
 
