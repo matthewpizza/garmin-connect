@@ -8,7 +8,6 @@
         "export"
     ],
     "homepage": "http://github.com/matthewspencer/garmin-connect",
-    "type": "library",
     "license": "MIT",
     "authors": [
         {
