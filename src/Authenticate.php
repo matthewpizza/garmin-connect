@@ -48,7 +48,7 @@ class Authenticate {
 	 * @var string $dashboard_url
 	 * @access public
 	 */
-	public static $dashboard_url = 'https://connect.garmin.com/post-auth/login';
+	public static $dashboard_url = 'https://connect.garmin.com/modern/';
 
 	/**
 	 * Make New Connection
