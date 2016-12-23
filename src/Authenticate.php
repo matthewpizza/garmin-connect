@@ -32,9 +32,10 @@ class Authenticate {
 	 * @access public
 	 */
 	public static $params = array(
-		'service' => 'https://connect.garmin.com/post-auth/login',
 		'clientId' => 'GarminConnect',
 		'consumeServiceTicket' => 'false',
+		'gauthHost' => 'https://sso.garmin.com/sso',
+		'service' => 'https://connect.garmin.com/modern/',
 	);
 
 	/**
