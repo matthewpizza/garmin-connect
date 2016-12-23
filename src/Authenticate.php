@@ -91,7 +91,7 @@ class Authenticate {
 	 */
 	private static function connect() {
 
-		if ( ! $ticket = self::ticket( $data ) ) {
+		if ( ! $ticket = self::ticket() ) {
 			die( "Cannot find ticket value. Please check connection details.\n" );
 		}
 
