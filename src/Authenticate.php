@@ -36,6 +36,7 @@ class Authenticate {
 		'consumeServiceTicket' => 'false',
 		'gauthHost' => 'https://sso.garmin.com/sso',
 		'service' => 'https://connect.garmin.com/modern/',
+		'webhost' => '',
 	);
 
 	/**
@@ -55,6 +56,12 @@ class Authenticate {
 	 * @access public
 	 */
 	public static $session_url = 'https://connect.garmin.com/legacy/session';
+
+	/**
+	 * @var string $hostname_url
+	 * @access public
+	 */
+	public static $hostname_url = 'https://connect.garmin.com/modern/auth/hostname';
 
 	/**
 	 * Make New Connection
@@ -126,30 +133,17 @@ class Authenticate {
 	}
 
 	/**
-	 * Get Flow Execution Key
-	 * Grabs from HTML comment
+	 * Get webhost from JSON.
 	 *
-	 * @return string|bool $execution_key
+	 * @return string|bool
 	 */
-	private static function flow_execution_key() {
+	private static function webhost() {
 
-		$response = self::$client->get( self::$login_url, [
-			'query' => self::$params
-		] );
+		$response = self::$client->get( self::$hostname_url );
 
-		$crawler = new Crawler( (string) $response->getBody() );
+		$data = json_decode((string) $response->getBody(), true);
 
-		// looking for
-		// <!-- flowExecutionKey: [xxxx] -->
-		// or
-		// <input name="lt" value="xxxx" type="hidden">
-		try {
-			$execution_key = $crawler->filter('input[name=lt]')->attr('value');
-		} catch ( InvalidArgumentException $e ) {
-			$execution_key = false;
-		}
-
-		return $execution_key;
+		return $data['host'] ?: false;
 
 	}
 
@@ -159,6 +153,9 @@ class Authenticate {
 	 * @return string
 	 */
 	private static function ticket() {
+		if ( ! $webhost = self::webhost() ) {
+			die( "Cannot find webhost value. Please check connection details.\n" );
+		}
 
 		$data = [
 			'username' => self::$email,
@@ -166,11 +163,13 @@ class Authenticate {
 			'_eventId' => 'submit',
 			'embed' => 'true',
 			'displayNameRequired' => 'false',
-			'lt' => self::flow_execution_key(),
 		];
 
+		$query = self::$params;
+		$query['webhost'] = $webhost;
+
 		$response = self::$client->post( self::$login_url, [
-			'query' => self::$params,
+			'query' => $query,
 			'body' => $data,
 			'allow_redirects' => false,
 		] );
