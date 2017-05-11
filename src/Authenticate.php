@@ -177,7 +177,7 @@ class Authenticate {
 
 		// looking for
 		// var response_url = 'https://connect.garmin.com/post-auth/login?ticket=xx-xxxxxxxx-xxxxxxxxxxxxxxxxxxxx-xxx';
-		preg_match( "/ticket=([^']+)'/", (string) $response->getBody(), $matches );
+		preg_match( '/ticket=([^"]+)/', (string) $response->getBody(), $matches );
 
 		if ( ! isset( $matches[1] ) ) {
 			return false;
