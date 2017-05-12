@@ -35,7 +35,7 @@ class Client {
 	public function __construct() {
 
 		if ( ! ini_get( 'date.timezone' ) ) {
-		    date_default_timezone_set( 'UTC' );
+			date_default_timezone_set( 'UTC' );
 		}
 
 		$this->guzzle = new Guzzle();
