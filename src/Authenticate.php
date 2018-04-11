@@ -1,7 +1,6 @@
 <?php
 
 namespace MatthewSpencer\GarminConnect;
-use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Authenticate with Garmin Connect
