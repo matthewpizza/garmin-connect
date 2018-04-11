@@ -99,7 +99,6 @@ class Client {
 	/**
 	 * Username for currently logged in user
 	 *
-	 * @uses https://connect.garmin.com/user/username
 	 * @return string $username
 	 */
 	public function username() {
@@ -108,13 +107,12 @@ class Client {
 			return $username;
 		}
 
-		$response = $this->get( 'https://connect.garmin.com/user/username' );
+		$response = $this->get( 'https://connect.garmin.com/modern/' );
+		$body = (string) $response->getBody();
 
-		if ( ! $body = json_decode( (string) $response->getBody(), true ) ) {
-			return '';
-		}
-
-		$username = $body['username'];
+		// Looking for a gross string like this: \"displayName\":\"{$username}\"
+		preg_match( '/displayName\\\":\\\"(.*?)\\\"/', $body, $matches );
+		$username = $matches[1] ?? '';
 
 		if ( ! empty( $username ) ) {
 			Cache::set( 'username', $username );
