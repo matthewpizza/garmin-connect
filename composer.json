@@ -17,7 +17,6 @@
         }
     ],
     "require": {
-        "php": ">=5.4",
         "guzzlehttp/guzzle": "~5.0",
         "underscore/underscore.php": "~1.3"
     },
