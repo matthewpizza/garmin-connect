@@ -10,32 +10,9 @@ $longopts = array( 'email::', 'password::', 'output_path::' );
 
 $options = getopt( $shortopts, $longopts );
 
-// Set Variables
-$variable_to_set = array(
-	array(
-		'variable' => 'email',
-		'values'   => array( 'e', 'email' ),
-	),
-	array(
-		'variable' => 'password',
-		'values'   => array( 'p', 'password' ),
-	),
-	array(
-		'variable' => 'output_path',
-		'values'   => array( 'o', 'output_path' ),
-	),
-);
-
-foreach ( $variable_to_set as $option ) {
-	foreach ( $option['values'] as $key ) {
-		if ( ! isset( $options[ $key ] ) ) {
-			continue;
-		}
-
-		$$option['variable'] = $options[ $key ];
-		break;
-	}
-}
+$email = $options['e'] ?? $options['email'] ?? '';
+$password = $options['p'] ?? $options['password'] ?? '';
+$output_path = $options['o'] ?? $options['output_path'] ?? '';
 
 // Make sure required options are set
 foreach ( array( 'email', 'password', 'output_path' ) as $variable ) {
